@@ -4,6 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { readdirSync, readFileSync, statSync } from 'fs';
+import { join, relative } from 'path';
 
 // ============================================================================
 // SECTION 1: Command Definitions (38+ commands)
@@ -1491,11 +1493,17 @@ describe('Init System', () => {
       const perms = settings.permissions as Record<string, unknown>;
       expect(perms.allow).toBeDefined();
       expect(perms.deny).toBeDefined();
+      expect(perms.allow).toContain('Bash(ruflo*)');
+      expect(perms.allow).toContain('mcp__ruflo__:*');
+      expect(perms.allow).not.toContain('mcp__claude-flow__:*');
     });
 
     it('should include attribution', () => {
       const settings = generateSettings(DEFAULT_INIT_OPTIONS) as Record<string, unknown>;
       expect(settings.attribution).toBeDefined();
+      const attribution = settings.attribution as Record<string, string>;
+      expect(attribution.commit).toContain('Co-Authored-By: ruflo');
+      expect(attribution.pr).toContain('[ruflo]');
     });
 
     it('should include env with agent teams enabled', () => {
@@ -1621,6 +1629,48 @@ describe('Init System', () => {
         expect(typeof tmpl.description).toBe('string');
         expect(tmpl.description.length).toBeGreaterThan(10);
       }
+    });
+  });
+
+  describe('branding regressions', () => {
+    function collectFiles(root: string): string[] {
+      const entries = readdirSync(root);
+      const files: string[] = [];
+      for (const entry of entries) {
+        const fullPath = join(root, entry);
+        const stat = statSync(fullPath);
+        if (stat.isDirectory()) {
+          files.push(...collectFiles(fullPath));
+        } else {
+          files.push(fullPath);
+        }
+      }
+      return files;
+    }
+
+    function collectMatches(root: string, pattern: RegExp): string[] {
+      return collectFiles(root).flatMap((filePath) => {
+        const lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
+        return lines.flatMap((line, index) =>
+          pattern.test(line)
+            ? [`${relative(process.cwd(), filePath)}:${index + 1}:${line.trim()}`]
+            : []
+        );
+      });
+    }
+
+    it('has no claude-flow command references in active CLI source', () => {
+      const pattern =
+        /claude-flow (daemon|memory|swarm|init|neural|status|agent|hooks|config|migrate|stop|start)|Usage: claude-flow|Run: claude-flow|Try: claude-flow|Store data: claude-flow|Search: claude-flow|View stats: claude-flow|Import command: claude-flow/;
+      const matches = collectMatches(join(process.cwd(), 'src'), pattern);
+      expect(matches).toEqual([]);
+    });
+
+    it('has no claude-flow command references in packaged .claude assets', () => {
+      const pattern =
+        /mcp__claude-flow__|npx claude-flow|\.\/claude-flow|claude-flow (daemon|memory|swarm|init|neural|status|agent|hooks|config|migrate|stop|start)/;
+      const matches = collectMatches(join(process.cwd(), '.claude'), pattern);
+      expect(matches).toEqual([]);
     });
   });
 });

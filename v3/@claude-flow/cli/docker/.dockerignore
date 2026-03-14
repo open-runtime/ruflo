@@ -56,7 +56,7 @@ docker/.dockerignore
 dist
 data
 .claude
-.claude-flow
+.claude/ruflo
 
 # Secrets
 .env

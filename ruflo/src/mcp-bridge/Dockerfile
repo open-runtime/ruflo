@@ -18,10 +18,10 @@ COPY mcp-stdio-kernel.js ./
 
 # Create writable directories for MCP backends (ruflo, ruvector, agentic-flow)
 # These tools write state/tasks/memory to the working directory at runtime
-RUN mkdir -p /app/.claude-flow/tasks /app/.claude-flow/memory /app/.claude-flow/sessions \
-    /app/.claude-flow/agents /app/.claude-flow/config /app/.claude-flow/data \
-    /app/.claude-flow/logs /app/.claude-flow/swarm \
-    && chown -R node:node /app/.claude-flow
+RUN mkdir -p /app/.claude/ruflo/tasks /app/.claude/ruflo/memory /app/.claude/ruflo/sessions \
+    /app/.claude/ruflo/agents /app/.claude/ruflo/config /app/.claude/ruflo/data \
+    /app/.claude/ruflo/logs /app/.claude/ruflo/swarm \
+    && chown -R node:node /app/.claude
 
 USER node
 

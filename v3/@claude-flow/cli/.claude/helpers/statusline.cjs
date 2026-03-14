@@ -146,7 +146,7 @@ function getLearningStats() {
   let trend = 'STABLE';
 
   // PRIMARY: Read from intelligence loop data files
-  const dataDir = path.join(process.cwd(), '.claude-flow', 'data');
+  const dataDir = path.join(process.cwd(), '.claude', 'ruflo', 'data');
 
   // 1. graph-state.json — authoritative node/edge counts
   const graphPath = path.join(dataDir, 'graph-state.json');
@@ -207,7 +207,7 @@ function getLearningStats() {
   if (patterns === 0) {
     const memoryPaths = [
       path.join(process.cwd(), '.swarm', 'memory.db'),
-      path.join(process.cwd(), '.claude', 'memory.db'),
+      path.join(process.cwd(), '.claude', 'ruflo', 'memory.db'),
       path.join(process.cwd(), 'data', 'memory.db'),
     ];
     for (let j = 0; j < memoryPaths.length; j++) {
@@ -222,7 +222,7 @@ function getLearningStats() {
   }
 
   // Session count from session files
-  const sessionsPath = path.join(process.cwd(), '.claude', 'sessions');
+  const sessionsPath = path.join(process.cwd(), '.claude', 'ruflo', 'sessions');
   if (fs.existsSync(sessionsPath)) {
     try {
       const sessionFiles = fs.readdirSync(sessionsPath).filter(f => f.endsWith('.json'));
@@ -264,7 +264,7 @@ function getV3Progress() {
 // Get security status based on actual scans
 function getSecurityStatus() {
   // Check for security scan results in memory
-  const scanResultsPath = path.join(process.cwd(), '.claude', 'security-scans');
+  const scanResultsPath = path.join(process.cwd(), '.claude', 'ruflo', 'security');
   let cvesFixed = 0;
   const totalCves = 3;
 

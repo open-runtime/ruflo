@@ -29,10 +29,7 @@ export interface LoadedConfig {
  * Configuration file names to search for
  */
 const CONFIG_FILE_NAMES = [
-  'claude-flow.config.json',
-  'claude-flow.config.js',
-  'claude-flow.json',
-  '.claude-flow.json',
+  'ruflo@claude-flow.config.json',
 ];
 
 /**
@@ -149,7 +146,7 @@ export class ConfigLoader {
     this.searchPaths = [
       process.cwd(),
       resolve(process.cwd(), '..'),
-      resolve(process.env.HOME ?? '', '.claude-flow'),
+      resolve(process.env.HOME ?? '', '.claude', 'ruflo'),
     ];
 
     if (additionalPaths) {

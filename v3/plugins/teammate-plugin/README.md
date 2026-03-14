@@ -62,7 +62,7 @@ pnpm add @claude-flow/teammate-plugin
 # Install via claude-flow plugin manager
 npx @claude-flow/cli@latest plugins install --name @claude-flow/teammate-plugin
 
-# Or add to your claude-flow.config.json
+# Or add to your ruflo@claude-flow.config.json
 npx @claude-flow/cli@latest config set plugins.teammate-plugin.enabled true
 ```
 

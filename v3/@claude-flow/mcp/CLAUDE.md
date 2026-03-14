@@ -568,7 +568,7 @@ Bash("npx @claude-flow/cli@latest neural patterns --list")
 
 ```bash
 # Configuration
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./ruflo@claude-flow.config.json
 CLAUDE_FLOW_LOG_LEVEL=info
 
 # Provider API Keys

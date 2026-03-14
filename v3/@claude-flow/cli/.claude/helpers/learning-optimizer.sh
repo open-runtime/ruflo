@@ -6,8 +6,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-LEARNING_DIR="$PROJECT_ROOT/.claude-flow/learning"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+LEARNING_DIR="$PROJECT_ROOT/.claude/ruflo/learning"
+METRICS_DIR="$PROJECT_ROOT/.claude/ruflo/metrics"
 PATTERNS_DB="$LEARNING_DIR/patterns.db"
 LEARNING_FILE="$METRICS_DIR/learning.json"
 LAST_RUN_FILE="$METRICS_DIR/.optimizer-last-run"

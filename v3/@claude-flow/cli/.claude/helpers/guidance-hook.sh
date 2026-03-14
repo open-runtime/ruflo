@@ -1,7 +1,8 @@
 #!/bin/bash
 # Capture hook guidance for Claude visibility
-GUIDANCE_FILE=".claude-flow/last-guidance.txt"
-mkdir -p .claude-flow
+PROJECT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+GUIDANCE_FILE="$PROJECT_ROOT/.claude/ruflo/last-guidance.txt"
+mkdir -p "$PROJECT_ROOT/.claude/ruflo"
 
 case "$1" in
   "route")

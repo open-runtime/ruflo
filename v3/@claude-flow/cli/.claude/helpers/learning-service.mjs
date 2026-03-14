@@ -27,7 +27,7 @@ import Database from 'better-sqlite3';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, '../..');
-const DATA_DIR = join(PROJECT_ROOT, '.claude-flow/learning');
+const DATA_DIR = join(PROJECT_ROOT, '.claude/ruflo/learning');
 const DB_PATH = join(DATA_DIR, 'patterns.db');
 const METRICS_PATH = join(DATA_DIR, 'learning-metrics.json');
 

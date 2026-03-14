@@ -14,6 +14,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as os from 'node:os';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
 // Read version dynamically from package.json
 function getPackageVersion(): string {
@@ -30,7 +31,7 @@ function getPackageVersion(): string {
 const PKG_VERSION = getPackageVersion();
 
 // Storage paths
-const STORAGE_DIR = '.claude-flow';
+const STORAGE_DIR = PROJECT_RUNTIME_DIR;
 const SYSTEM_DIR = 'system';
 const METRICS_FILE = 'metrics.json';
 
@@ -437,7 +438,7 @@ export const systemTools: MCPTool[] = [
     },
     handler: async () => {
       // Read from the task store file
-      const storePath = join(process.cwd(), '.claude-flow', 'tasks', 'store.json');
+      const storePath = join(process.cwd(), STORAGE_DIR, 'tasks', 'store.json');
       let tasks: Array<{ status: string }> = [];
       try {
         if (existsSync(storePath)) {

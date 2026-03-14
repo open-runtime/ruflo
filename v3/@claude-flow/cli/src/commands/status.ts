@@ -9,6 +9,7 @@ import { callMCPTool, MCPClientError } from '../mcp-client.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { joinProjectRuntimePath } from '../utils/runtime-paths.js';
 
 // Status refresh interval (ms)
 const DEFAULT_WATCH_INTERVAL = 2000;
@@ -45,7 +46,7 @@ function getProcessMemoryUsage(): number {
 
 // Check if project is initialized
 function isInitialized(cwd: string): boolean {
-  const configPath = path.join(cwd, '.claude-flow', 'config.yaml');
+  const configPath = joinProjectRuntimePath(cwd, 'config.yaml');
   return fs.existsSync(configPath);
 }
 
@@ -727,14 +728,14 @@ export const statusCommand: Command = {
     }
   ],
   examples: [
-    { command: 'claude-flow status', description: 'Show current system status' },
-    { command: 'claude-flow status --watch', description: 'Watch mode with live updates' },
-    { command: 'claude-flow status --watch -i 5', description: 'Watch mode updating every 5 seconds' },
-    { command: 'claude-flow status --health-check', description: 'Run health checks' },
-    { command: 'claude-flow status --json', description: 'Output status as JSON' },
-    { command: 'claude-flow status agents', description: 'Show detailed agent status' },
-    { command: 'claude-flow status tasks', description: 'Show detailed task status' },
-    { command: 'claude-flow status memory', description: 'Show detailed memory status' }
+    { command: 'ruflo status', description: 'Show current system status' },
+    { command: 'ruflo status --watch', description: 'Watch mode with live updates' },
+    { command: 'ruflo status --watch -i 5', description: 'Watch mode updating every 5 seconds' },
+    { command: 'ruflo status --health-check', description: 'Run health checks' },
+    { command: 'ruflo status --json', description: 'Output status as JSON' },
+    { command: 'ruflo status agents', description: 'Show detailed agent status' },
+    { command: 'ruflo status tasks', description: 'Show detailed task status' },
+    { command: 'ruflo status memory', description: 'Show detailed memory status' }
   ],
   action: statusAction
 };

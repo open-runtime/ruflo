@@ -10,6 +10,7 @@ import { spawn, execFile } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve, isAbsolute } from 'path';
 import * as fs from 'fs';
+import { getProjectRuntimeDir, joinProjectRuntimePath } from '../utils/runtime-paths.js';
 
 // Start daemon subcommand
 const startCommand: Command = {
@@ -24,10 +25,10 @@ const startCommand: Command = {
     { name: 'sandbox', type: 'string', description: 'Default sandbox mode for headless workers', choices: ['strict', 'permissive', 'disabled'] },
   ],
   examples: [
-    { command: 'claude-flow daemon start', description: 'Start daemon in background (default)' },
-    { command: 'claude-flow daemon start --foreground', description: 'Start in foreground (blocks terminal)' },
-    { command: 'claude-flow daemon start -w map,audit,optimize', description: 'Start with specific workers' },
-    { command: 'claude-flow daemon start --headless --sandbox strict', description: 'Start with headless workers in strict sandbox' },
+    { command: 'ruflo daemon start', description: 'Start daemon in background (default)' },
+    { command: 'ruflo daemon start --foreground', description: 'Start in foreground (blocks terminal)' },
+    { command: 'ruflo daemon start -w map,audit,optimize', description: 'Start with specific workers' },
+    { command: 'ruflo daemon start --headless --sandbox strict', description: 'Start with headless workers in strict sandbox' },
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     const quiet = ctx.flags.quiet as boolean;
@@ -53,8 +54,8 @@ const startCommand: Command = {
 
     // Foreground mode: run in current process (blocks terminal)
     try {
-      const stateDir = join(projectRoot, '.claude-flow');
-      const pidFile = join(stateDir, 'daemon.pid');
+      const stateDir = getProjectRuntimeDir(projectRoot);
+      const pidFile = joinProjectRuntimePath(projectRoot, 'daemon.pid');
 
       // Ensure state directory exists
       if (!fs.existsSync(stateDir)) {
@@ -170,7 +171,7 @@ function validatePath(path: string, label: string): void {
   }
 
   // Prevent path traversal outside expected directories
-  if (!resolved.includes('.claude-flow') && !resolved.includes('bin')) {
+  if (!resolved.includes('.claude/ruflo') && !resolved.includes('bin')) {
     // Allow only paths within project structure
     const cwd = process.cwd();
     if (!resolved.startsWith(cwd)) {
@@ -187,9 +188,9 @@ async function startBackgroundDaemon(projectRoot: string, quiet: boolean): Promi
   const resolvedRoot = resolve(projectRoot);
   validatePath(resolvedRoot, 'Project root');
 
-  const stateDir = join(resolvedRoot, '.claude-flow');
-  const pidFile = join(stateDir, 'daemon.pid');
-  const logFile = join(stateDir, 'daemon.log');
+  const stateDir = getProjectRuntimeDir(resolvedRoot);
+  const pidFile = joinProjectRuntimePath(resolvedRoot, 'daemon.pid');
+  const logFile = joinProjectRuntimePath(resolvedRoot, 'daemon.log');
 
   // Validate all paths
   validatePath(stateDir, 'State directory');
@@ -257,7 +258,7 @@ async function startBackgroundDaemon(projectRoot: string, quiet: boolean): Promi
   if (!quiet) {
     output.printSuccess(`Daemon started in background (PID: ${pid})`);
     output.printInfo(`Logs: ${logFile}`);
-    output.printInfo(`Stop with: claude-flow daemon stop`);
+    output.printInfo(`Stop with: ruflo daemon stop`);
   }
 
   return { success: true };
@@ -271,7 +272,7 @@ const stopCommand: Command = {
     { name: 'quiet', short: 'Q', type: 'boolean', description: 'Suppress output' },
   ],
   examples: [
-    { command: 'claude-flow daemon stop', description: 'Stop the daemon' },
+    { command: 'ruflo daemon stop', description: 'Stop the daemon' },
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     const quiet = ctx.flags.quiet as boolean;
@@ -306,8 +307,7 @@ const stopCommand: Command = {
  * Kill background daemon process using PID file
  */
 async function killBackgroundDaemon(projectRoot: string): Promise<boolean> {
-  const pidFile = join(projectRoot, '.claude-flow', 'daemon.pid');
-
+  const pidFile = joinProjectRuntimePath(projectRoot, 'daemon.pid');
   if (!fs.existsSync(pidFile)) {
     return false;
   }
@@ -362,11 +362,8 @@ async function killBackgroundDaemon(projectRoot: string): Promise<boolean> {
  * Get PID of background daemon from PID file
  */
 function getBackgroundDaemonPid(projectRoot: string): number | null {
-  const pidFile = join(projectRoot, '.claude-flow', 'daemon.pid');
-
-  if (!fs.existsSync(pidFile)) {
-    return null;
-  }
+  const pidFile = joinProjectRuntimePath(projectRoot, 'daemon.pid');
+  if (!fs.existsSync(pidFile)) return null;
 
   try {
     const pid = parseInt(fs.readFileSync(pidFile, 'utf-8').trim(), 10);
@@ -397,9 +394,9 @@ const statusCommand: Command = {
     { name: 'show-modes', type: 'boolean', description: 'Show worker execution modes (local/headless) and sandbox settings' },
   ],
   examples: [
-    { command: 'claude-flow daemon status', description: 'Show daemon status' },
-    { command: 'claude-flow daemon status -v', description: 'Show detailed status' },
-    { command: 'claude-flow daemon status --show-modes', description: 'Show worker execution modes' },
+    { command: 'ruflo daemon status', description: 'Show daemon status' },
+    { command: 'ruflo daemon status -v', description: 'Show detailed status' },
+    { command: 'ruflo daemon status --show-modes', description: 'Show worker execution modes' },
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     const verbose = ctx.flags.verbose as boolean;
@@ -510,7 +507,7 @@ const statusCommand: Command = {
         [
           `Status: ${output.error('○')} ${output.error('NOT INITIALIZED')}`,
           '',
-          'Run "claude-flow daemon start" to start the daemon',
+          'Run "ruflo daemon start" to start the daemon',
         ].join('\n'),
         'RuFlo Daemon'
       );
@@ -529,9 +526,9 @@ const triggerCommand: Command = {
     { name: 'headless', type: 'boolean', description: 'Run triggered worker in headless mode (E2B sandbox)' },
   ],
   examples: [
-    { command: 'claude-flow daemon trigger -w map', description: 'Trigger the map worker' },
-    { command: 'claude-flow daemon trigger -w audit', description: 'Trigger security audit' },
-    { command: 'claude-flow daemon trigger -w audit --headless', description: 'Trigger audit in headless sandbox' },
+    { command: 'ruflo daemon trigger -w map', description: 'Trigger the map worker' },
+    { command: 'ruflo daemon trigger -w audit', description: 'Trigger security audit' },
+    { command: 'ruflo daemon trigger -w audit --headless', description: 'Trigger audit in headless sandbox' },
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     const workerType = ctx.flags.worker as WorkerType;
@@ -580,8 +577,8 @@ const enableCommand: Command = {
     { name: 'disable', short: 'd', type: 'boolean', description: 'Disable instead of enable' },
   ],
   examples: [
-    { command: 'claude-flow daemon enable -w predict', description: 'Enable predict worker' },
-    { command: 'claude-flow daemon enable -w document --disable', description: 'Disable document worker' },
+    { command: 'ruflo daemon enable -w predict', description: 'Enable predict worker' },
+    { command: 'ruflo daemon enable -w document --disable', description: 'Disable document worker' },
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     const workerType = ctx.flags.worker as WorkerType;
@@ -639,11 +636,11 @@ export const daemonCommand: Command = {
   ],
   options: [],
   examples: [
-    { command: 'claude-flow daemon start', description: 'Start the daemon' },
-    { command: 'claude-flow daemon start --headless', description: 'Start with headless workers (E2B sandbox)' },
-    { command: 'claude-flow daemon status', description: 'Check daemon status' },
-    { command: 'claude-flow daemon stop', description: 'Stop the daemon' },
-    { command: 'claude-flow daemon trigger -w audit', description: 'Run security audit' },
+    { command: 'ruflo daemon start', description: 'Start the daemon' },
+    { command: 'ruflo daemon start --headless', description: 'Start with headless workers (E2B sandbox)' },
+    { command: 'ruflo daemon status', description: 'Check daemon status' },
+    { command: 'ruflo daemon stop', description: 'Stop the daemon' },
+    { command: 'ruflo daemon trigger -w audit', description: 'Run security audit' },
   ],
   action: async (): Promise<CommandResult> => {
     output.writeln();
@@ -684,7 +681,7 @@ export const daemonCommand: Command = {
     ]);
 
     output.writeln();
-    output.writeln('Run "claude-flow daemon <subcommand> --help" for details');
+    output.writeln('Run "ruflo daemon <subcommand> --help" for details');
 
     return { success: true };
   },

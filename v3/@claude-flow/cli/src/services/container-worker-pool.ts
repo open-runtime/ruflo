@@ -131,7 +131,7 @@ const DEFAULT_CONFIG: ContainerPoolConfig = {
   healthCheckIntervalMs: 30000,
   idleTimeoutMs: 300000, // 5 minutes
   workspacePath: '/workspace',
-  statePath: '.claude-flow/container-pool',
+  statePath: '.claude/ruflo/container-pool',
   defaultSandbox: 'strict',
 };
 
@@ -414,7 +414,7 @@ export class ContainerWorkerPool extends EventEmitter {
         '--cpus', this.config.resources.cpus,
         '--memory', this.config.resources.memory,
         '-v', `${this.projectRoot}:${this.config.workspacePath}:ro`,
-        '-v', `${join(this.projectRoot, this.config.statePath)}:/root/.claude-flow`,
+        '-v', `${join(this.projectRoot, this.config.statePath)}:/root/.claude/ruflo`,
         '-w', this.config.workspacePath,
       ];
 
@@ -634,7 +634,7 @@ export class ContainerWorkerPool extends EventEmitter {
    * Build worker command for container execution
    */
   private buildWorkerCommand(options: ContainerExecutionOptions): string[] {
-    // Use npx to run claude-flow daemon trigger
+    // Use npx to run ruflo daemon trigger
     return [
       'npx', 'claude-flow@v3alpha',
       'daemon', 'trigger',

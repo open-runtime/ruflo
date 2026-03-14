@@ -105,9 +105,9 @@
   "permissions": {
     "allow": [
       "Bash(npx @claude-flow*)",
-      "Bash(npx claude-flow*)",
+      "Bash(ruflo*)",
       "Bash(node .claude/*)",
-      "mcp__claude-flow__:*"
+      "mcp__ruflo__:*"
     ],
     "deny": [
       "Read(./.env)",

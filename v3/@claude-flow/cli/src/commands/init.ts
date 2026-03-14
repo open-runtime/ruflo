@@ -17,6 +17,7 @@ import {
   FULL_INIT_OPTIONS,
   type InitOptions,
 } from '../init/index.js';
+import { joinProjectRuntimePath, displayProjectRuntimePath } from '../utils/runtime-paths.js';
 
 // Codex initialization action
 async function initCodexAction(
@@ -161,13 +162,13 @@ async function initCodexAction(
   }
 }
 
-// Check if project is already initialized
+// Check if project is already initialized (canonical: .claude/ruflo)
 function isInitialized(cwd: string): { claude: boolean; claudeFlow: boolean } {
   const claudePath = path.join(cwd, '.claude', 'settings.json');
-  const claudeFlowPath = path.join(cwd, '.claude-flow', 'config.yaml');
+  const runtimeConfigPath = joinProjectRuntimePath(cwd, 'config.yaml');
   return {
     claude: fs.existsSync(claudePath),
-    claudeFlow: fs.existsSync(claudeFlowPath),
+    claudeFlow: fs.existsSync(runtimeConfigPath),
   };
 }
 
@@ -194,7 +195,7 @@ const initAction = async (ctx: CommandContext): Promise<CommandResult> => {
   if (hasExisting && !force) {
     output.printWarning('RuFlo appears to be already initialized');
     if (initialized.claude) output.printInfo('  Found: .claude/settings.json');
-    if (initialized.claudeFlow) output.printInfo('  Found: .claude-flow/config.yaml');
+    if (initialized.claudeFlow) output.printInfo(`  Found: ${displayProjectRuntimePath('config.yaml')}`);
     output.printInfo('Use --force to reinitialize');
 
     if (ctx.interactive) {
@@ -299,10 +300,10 @@ const initAction = async (ctx: CommandContext): Promise<CommandResult> => {
     if (options.components.runtime) {
       output.printBox(
         [
-          `Config:      .claude-flow/config.yaml`,
-          `Data:        .claude-flow/data/`,
-          `Logs:        .claude-flow/logs/`,
-          `Sessions:    .claude-flow/sessions/`,
+          `Config:      ${displayProjectRuntimePath('config.yaml')}`,
+          `Data:        ${displayProjectRuntimePath('data/')}`,
+          `Logs:        ${displayProjectRuntimePath('logs/')}`,
+          `Sessions:    ${displayProjectRuntimePath('sessions/')}`,
         ].join('\n'),
         'V3 Runtime'
       );
@@ -403,10 +404,10 @@ const initAction = async (ctx: CommandContext): Promise<CommandResult> => {
       // Next steps (only if not auto-starting)
       output.writeln(output.bold('Next steps:'));
       output.printList([
-        `Run ${output.highlight('claude-flow daemon start')} to start background workers`,
-        `Run ${output.highlight('claude-flow memory init')} to initialize memory database`,
-        `Run ${output.highlight('claude-flow swarm init')} to initialize a swarm`,
-        `Or use ${output.highlight('claude-flow init --start-all')} to do all of the above`,
+        `Run ${output.highlight('ruflo daemon start')} to start background workers`,
+        `Run ${output.highlight('ruflo memory init')} to initialize memory database`,
+        `Run ${output.highlight('ruflo swarm init')} to initialize a swarm`,
+        `Or use ${output.highlight('ruflo init --start-all')} to do all of the above`,
         options.components.settings ? `Review ${output.highlight('.claude/settings.json')} for hook configurations` : '',
       ].filter(Boolean));
     }
@@ -467,7 +468,7 @@ const wizardCommand: Command = {
             { value: 'helpers', label: 'Helpers', hint: 'Utility scripts in .claude/helpers/', selected: true },
             { value: 'statusline', label: 'Statusline', hint: 'Shell statusline integration', selected: false },
             { value: 'mcp', label: 'MCP', hint: '.mcp.json for MCP server configuration', selected: true },
-            { value: 'runtime', label: 'Runtime', hint: '.claude-flow/ directory for V3 runtime', selected: true },
+            { value: 'runtime', label: 'Runtime', hint: `${displayProjectRuntimePath()} directory for V3 runtime`, selected: true },
           ],
         });
 
@@ -512,7 +513,7 @@ const wizardCommand: Command = {
               { value: 'sessionStart', label: 'SessionStart', hint: 'Session initialization', selected: true },
               { value: 'stop', label: 'Stop', hint: 'Task completion evaluation', selected: true },
               { value: 'notification', label: 'Notification', hint: 'Swarm notifications', selected: true },
-              { value: 'permissionRequest', label: 'PermissionRequest', hint: 'Auto-allow claude-flow tools', selected: true },
+              { value: 'permissionRequest', label: 'PermissionRequest', hint: 'Auto-allow ruflo tools', selected: true },
             ],
           });
 
@@ -692,7 +693,7 @@ const checkCommand: Command = {
       claudeFlow: initialized.claudeFlow,
       paths: {
         claudeSettings: initialized.claude ? path.join(ctx.cwd, '.claude', 'settings.json') : null,
-        claudeFlowConfig: initialized.claudeFlow ? path.join(ctx.cwd, '.claude-flow', 'config.yaml') : null,
+        claudeFlowConfig: initialized.claudeFlow ? joinProjectRuntimePath(ctx.cwd, 'config.yaml') : null,
       },
     };
 
@@ -707,7 +708,7 @@ const checkCommand: Command = {
         output.printInfo(`  Claude Code: .claude/settings.json`);
       }
       if (initialized.claudeFlow) {
-        output.printInfo(`  V3 Runtime: .claude-flow/config.yaml`);
+        output.printInfo(`  V3 Runtime: ${displayProjectRuntimePath('config.yaml')}`);
       }
     } else {
       output.printWarning('RuFlo is not initialized in this directory');
@@ -1072,25 +1073,25 @@ export const initCommand: Command = {
     },
   ],
   examples: [
-    { command: 'claude-flow init', description: 'Initialize with default configuration' },
-    { command: 'claude-flow init --start-all', description: 'Initialize and start daemon, memory, swarm' },
-    { command: 'claude-flow init --start-daemon', description: 'Initialize and start daemon only' },
-    { command: 'claude-flow init --minimal', description: 'Initialize with minimal configuration' },
-    { command: 'claude-flow init --full', description: 'Initialize with all components' },
-    { command: 'claude-flow init --force', description: 'Reinitialize and overwrite existing config' },
-    { command: 'claude-flow init --only-claude', description: 'Only create Claude Code integration' },
-    { command: 'claude-flow init --skip-claude', description: 'Only create V3 runtime' },
-    { command: 'claude-flow init wizard', description: 'Interactive setup wizard' },
-    { command: 'claude-flow init --with-embeddings', description: 'Initialize with ONNX embeddings' },
-    { command: 'claude-flow init --with-embeddings --embedding-model all-mpnet-base-v2', description: 'Use larger embedding model' },
-    { command: 'claude-flow init skills --all', description: 'Install all available skills' },
-    { command: 'claude-flow init hooks --minimal', description: 'Create minimal hooks configuration' },
-    { command: 'claude-flow init upgrade', description: 'Update helpers while preserving data' },
-    { command: 'claude-flow init upgrade --settings', description: 'Update helpers and merge new settings (Agent Teams)' },
-    { command: 'claude-flow init upgrade --verbose', description: 'Show detailed upgrade info' },
-    { command: 'claude-flow init --codex', description: 'Initialize for OpenAI Codex (AGENTS.md)' },
-    { command: 'claude-flow init --codex --full', description: 'Codex init with all 137+ skills' },
-    { command: 'claude-flow init --dual', description: 'Initialize for both Claude Code and Codex' },
+    { command: 'ruflo init', description: 'Initialize with default configuration' },
+    { command: 'ruflo init --start-all', description: 'Initialize and start daemon, memory, swarm' },
+    { command: 'ruflo init --start-daemon', description: 'Initialize and start daemon only' },
+    { command: 'ruflo init --minimal', description: 'Initialize with minimal configuration' },
+    { command: 'ruflo init --full', description: 'Initialize with all components' },
+    { command: 'ruflo init --force', description: 'Reinitialize and overwrite existing config' },
+    { command: 'ruflo init --only-claude', description: 'Only create Claude Code integration' },
+    { command: 'ruflo init --skip-claude', description: 'Only create V3 runtime' },
+    { command: 'ruflo init wizard', description: 'Interactive setup wizard' },
+    { command: 'ruflo init --with-embeddings', description: 'Initialize with ONNX embeddings' },
+    { command: 'ruflo init --with-embeddings --embedding-model all-mpnet-base-v2', description: 'Use larger embedding model' },
+    { command: 'ruflo init skills --all', description: 'Install all available skills' },
+    { command: 'ruflo init hooks --minimal', description: 'Create minimal hooks configuration' },
+    { command: 'ruflo init upgrade', description: 'Update helpers while preserving data' },
+    { command: 'ruflo init upgrade --settings', description: 'Update helpers and merge new settings (Agent Teams)' },
+    { command: 'ruflo init upgrade --verbose', description: 'Show detailed upgrade info' },
+    { command: 'ruflo init --codex', description: 'Initialize for OpenAI Codex (AGENTS.md)' },
+    { command: 'ruflo init --codex --full', description: 'Codex init with all 137+ skills' },
+    { command: 'ruflo init --dual', description: 'Initialize for both Claude Code and Codex' },
   ],
   action: initAction,
 };

@@ -762,7 +762,7 @@ Performance: perf-analyzer, performance-benchmarker
 ## Environment Variables
 
 \`\`\`bash
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./ruflo@claude-flow.config.json
 ANTHROPIC_API_KEY=sk-ant-...
 CLAUDE_FLOW_MCP_PORT=3000
 \`\`\`

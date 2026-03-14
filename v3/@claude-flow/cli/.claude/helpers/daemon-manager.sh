@@ -4,9 +4,9 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-PID_DIR="$PROJECT_ROOT/.claude-flow/pids"
-LOG_DIR="$PROJECT_ROOT/.claude-flow/logs"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+PID_DIR="$PROJECT_ROOT/.claude/ruflo/pids"
+LOG_DIR="$PROJECT_ROOT/.claude/ruflo/logs"
+METRICS_DIR="$PROJECT_ROOT/.claude/ruflo/metrics"
 
 # Ensure directories exist
 mkdir -p "$PID_DIR" "$LOG_DIR" "$METRICS_DIR"

@@ -748,7 +748,7 @@ enabled = false
 
 ```bash
 # Configuration paths
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./ruflo@claude-flow.config.json
 CLAUDE_FLOW_MEMORY_PATH=./.claude-flow/data
 
 # Provider keys

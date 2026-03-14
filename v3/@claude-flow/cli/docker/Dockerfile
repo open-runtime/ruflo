@@ -98,7 +98,7 @@ RUN apk add --no-cache dumb-init git bash ca-certificates curl
 # Non-root user
 RUN addgroup -g 1001 -S ruflo \
     && adduser -S -D -H -u 1001 -h /home/ruflo -s /bin/bash -G ruflo ruflo \
-    && mkdir -p /home/ruflo/.claude-flow /workspace \
+    && mkdir -p /home/ruflo/.claude/ruflo /workspace \
     && chown -R ruflo:ruflo /home/ruflo /workspace
 
 # Copy only the global node_modules and bin links from build stage

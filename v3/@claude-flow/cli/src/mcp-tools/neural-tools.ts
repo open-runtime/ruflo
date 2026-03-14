@@ -15,6 +15,7 @@
 import type { MCPTool } from './types.js';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
 // Try to import real embeddings — prefer agentic-flow v3 ReasoningBank, then @claude-flow/embeddings
 let realEmbeddings: { embed: (text: string) => Promise<number[]> } | null = null;
@@ -57,7 +58,7 @@ try {
 }
 
 // Storage paths
-const STORAGE_DIR = '.claude-flow';
+const STORAGE_DIR = PROJECT_RUNTIME_DIR;
 const NEURAL_DIR = 'neural';
 const MODELS_FILE = 'models.json';
 const PATTERNS_FILE = 'patterns.json';

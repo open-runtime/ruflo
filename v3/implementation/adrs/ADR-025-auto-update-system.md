@@ -207,7 +207,7 @@ CI=true
 ### Configuration File
 
 ```json
-// claude-flow.config.json
+// ruflo@claude-flow.config.json
 {
   "update": {
     "enabled": true,

@@ -5,8 +5,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 V3_DIR="$PROJECT_ROOT/v3"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
-SECURITY_DIR="$PROJECT_ROOT/.claude-flow/security"
+METRICS_DIR="$PROJECT_ROOT/.claude/ruflo/metrics"
+SECURITY_DIR="$PROJECT_ROOT/.claude/ruflo/security"
 
 # Ensure directories exist
 mkdir -p "$METRICS_DIR" "$SECURITY_DIR"
@@ -131,7 +131,7 @@ count_total_files() {
 count_domains() {
     local domains=0
 
-    # Map @claude-flow modules to DDD domains
+    # Map @ruflo modules to DDD domains
     [ -d "$V3_DIR/@claude-flow/swarm" ] && ((domains++))      # task-management
     [ -d "$V3_DIR/@claude-flow/memory" ] && ((domains++))     # session-management
     [ -d "$V3_DIR/@claude-flow/performance" ] && ((domains++)) # health-monitoring

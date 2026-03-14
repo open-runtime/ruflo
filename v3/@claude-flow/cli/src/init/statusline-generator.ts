@@ -209,8 +209,7 @@ function getModelName() {
 function getLearningStats() {
   const memoryPaths = [
     path.join(CWD, '.swarm', 'memory.db'),
-    path.join(CWD, '.claude-flow', 'memory.db'),
-    path.join(CWD, '.claude', 'memory.db'),
+    path.join(CWD, '.claude', 'ruflo', 'memory.db'),
     path.join(CWD, 'data', 'memory.db'),
     path.join(CWD, '.agentdb', 'memory.db'),
   ];
@@ -230,7 +229,7 @@ function getLearningStats() {
   // Check session files count
   let sessions = 0;
   try {
-    const sessDir = path.join(CWD, '.claude', 'sessions');
+    const sessDir = path.join(CWD, '.claude', 'ruflo', 'sessions');
     if (fs.existsSync(sessDir)) {
       sessions = fs.readdirSync(sessDir).filter(f => f.endsWith('.json')).length;
     }
@@ -244,7 +243,7 @@ function getV3Progress() {
   const learning = getLearningStats();
   const totalDomains = 5;
 
-  const dddData = readJSON(path.join(CWD, '.claude-flow', 'metrics', 'ddd-progress.json'));
+  const dddData = readJSON(path.join(CWD, '.claude', 'ruflo', 'metrics', 'ddd-progress.json'));
   let dddProgress = dddData ? (dddData.progress || 0) : 0;
   let domainsCompleted = Math.min(5, Math.floor(dddProgress / 20));
 
@@ -267,7 +266,7 @@ function getV3Progress() {
 // Security status (pure file reads)
 function getSecurityStatus() {
   const totalCves = 3;
-  const auditData = readJSON(path.join(CWD, '.claude-flow', 'security', 'audit-status.json'));
+  const auditData = readJSON(path.join(CWD, '.claude', 'ruflo', 'security', 'audit-status.json'));
   if (auditData) {
     return {
       status: auditData.status || 'PENDING',
@@ -278,7 +277,7 @@ function getSecurityStatus() {
 
   let cvesFixed = 0;
   try {
-    const scanDir = path.join(CWD, '.claude', 'security-scans');
+    const scanDir = path.join(CWD, '.claude', 'ruflo', 'security');
     if (fs.existsSync(scanDir)) {
       cvesFixed = Math.min(totalCves, fs.readdirSync(scanDir).filter(f => f.endsWith('.json')).length);
     }
@@ -293,7 +292,7 @@ function getSecurityStatus() {
 
 // Swarm status (pure file reads, NO ps aux)
 function getSwarmStatus() {
-  const activityData = readJSON(path.join(CWD, '.claude-flow', 'metrics', 'swarm-activity.json'));
+  const activityData = readJSON(path.join(CWD, '.claude', 'ruflo', 'metrics', 'swarm-activity.json'));
   if (activityData && activityData.swarm) {
     return {
       activeAgents: activityData.swarm.agent_count || 0,
@@ -302,7 +301,7 @@ function getSwarmStatus() {
     };
   }
 
-  const progressData = readJSON(path.join(CWD, '.claude-flow', 'metrics', 'v3-progress.json'));
+  const progressData = readJSON(path.join(CWD, '.claude', 'ruflo', 'metrics', 'v3-progress.json'));
   if (progressData && progressData.swarm) {
     return {
       activeAgents: progressData.swarm.activeAgents || progressData.swarm.agent_count || 0,
@@ -321,7 +320,7 @@ function getSystemMetrics() {
   const agentdb = getAgentDBStats();
 
   // Intelligence from learning.json
-  const learningData = readJSON(path.join(CWD, '.claude-flow', 'metrics', 'learning.json'));
+  const learningData = readJSON(path.join(CWD, '.claude', 'ruflo', 'metrics', 'learning.json'));
   let intelligencePct = 0;
   let contextPct = 0;
 
@@ -354,7 +353,7 @@ function getSystemMetrics() {
 
   // Sub-agents from file metrics (no ps aux)
   let subAgents = 0;
-  const activityData = readJSON(path.join(CWD, '.claude-flow', 'metrics', 'swarm-activity.json'));
+  const activityData = readJSON(path.join(CWD, '.claude', 'ruflo', 'metrics', 'swarm-activity.json'));
   if (activityData && activityData.processes && activityData.processes.estimated_agents) {
     subAgents = activityData.processes.estimated_agents;
   }
@@ -364,7 +363,7 @@ function getSystemMetrics() {
 
 // ADR status (count files only — don't read contents)
 function getADRStatus() {
-  const complianceData = readJSON(path.join(CWD, '.claude-flow', 'metrics', 'adr-compliance.json'));
+  const complianceData = readJSON(path.join(CWD, '.claude', 'ruflo', 'metrics', 'adr-compliance.json'));
   if (complianceData) {
     const checks = complianceData.checks || {};
     const total = Object.keys(checks).length;
@@ -376,7 +375,7 @@ function getADRStatus() {
   const adrPaths = [
     path.join(CWD, 'v3', 'implementation', 'adrs'),
     path.join(CWD, 'docs', 'adrs'),
-    path.join(CWD, '.claude-flow', 'adrs'),
+    path.join(CWD, '.claude', 'ruflo', 'adrs'),
   ];
 
   for (const adrPath of adrPaths) {
@@ -428,8 +427,7 @@ function getAgentDBStats() {
 
   const dbFiles = [
     path.join(CWD, '.swarm', 'memory.db'),
-    path.join(CWD, '.claude-flow', 'memory.db'),
-    path.join(CWD, '.claude', 'memory.db'),
+    path.join(CWD, '.claude', 'ruflo', 'memory.db'),
     path.join(CWD, 'data', 'memory.db'),
   ];
 
@@ -445,7 +443,7 @@ function getAgentDBStats() {
 
   if (vectorCount === 0) {
     const dbDirs = [
-      path.join(CWD, '.claude-flow', 'agentdb'),
+      path.join(CWD, '.claude', 'ruflo', 'agentdb'),
       path.join(CWD, '.swarm', 'agentdb'),
       path.join(CWD, '.agentdb'),
     ];
@@ -467,7 +465,7 @@ function getAgentDBStats() {
 
   const hnswPaths = [
     path.join(CWD, '.swarm', 'hnsw.index'),
-    path.join(CWD, '.claude-flow', 'hnsw.index'),
+    path.join(CWD, '.claude', 'ruflo', 'hnsw.index'),
   ];
   for (const p of hnswPaths) {
     const stat = safeStat(p);
@@ -536,7 +534,7 @@ function getIntegrationStatus() {
     }
   }
 
-  const hasDatabase = ['.swarm/memory.db', '.claude-flow/memory.db', 'data/memory.db']
+  const hasDatabase = ['.swarm/memory.db', '.claude/ruflo/memory.db', 'data/memory.db']
     .some(p => fs.existsSync(path.join(CWD, p)));
   const hasApi = !!(process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY);
 
@@ -545,7 +543,7 @@ function getIntegrationStatus() {
 
 // Session stats (pure file reads)
 function getSessionStats() {
-  var sessionPaths = ['.claude-flow/session.json', '.claude/session.json'];
+  var sessionPaths = ['.claude/ruflo/session.json', '.claude/session.json'];
   for (var i = 0; i < sessionPaths.length; i++) {
     const data = readJSON(path.join(CWD, sessionPaths[i]));
     if (data && data.startTime) {

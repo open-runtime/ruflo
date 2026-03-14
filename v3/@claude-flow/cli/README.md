@@ -2498,12 +2498,12 @@ Claude Code pipes JSON session data via **stdin** to the statusline script after
 | `Opus 4.6` | Claude model name | Stdin JSON `model.display_name` |
 | `●42% ctx` | Context window usage | Stdin JSON `context_window.used_percentage` |
 | `$0.15` | Session cost | Stdin JSON `cost.total_cost_usd` |
-| `[●●●●○]` | DDD domain progress bar | `.claude-flow/metrics/v3-progress.json` |
+| `[●●●●○]` | DDD domain progress bar | `.claude/ruflo/metrics/v3-progress.json` |
 | `⚡ HNSW 150x` | HNSW search speedup | AgentDB file stats |
 | `◉/○` | Swarm coordination status | Process detection |
 | `[12/8]` | Active agents / max agents | `ps aux` process count |
 | `👥 3` | Sub-agents spawned | Task tool agent count |
-| `🟢 CVE 3/3` | Security CVE remediation | `.claude-flow/security/audit-status.json` |
+| `🟢 CVE 3/3` | Security CVE remediation | `.claude/ruflo/security/audit-status.json` |
 | `💾 512MB` | Memory usage | Node.js process RSS |
 | `🧠 15%` | Intelligence score | Pattern count from AgentDB |
 | `📦 AgentDB ●1.2K` | AgentDB vector count | File size estimate (`size / 2KB`) |
@@ -2550,9 +2550,9 @@ The statusline script reads stdin synchronously, falls back to local detection w
 
 **Data Sources:**
 - **Stdin JSON** — Model name, context %, cost, duration (from Claude Code)
-- `.claude-flow/metrics/v3-progress.json` — DDD domain progress
-- `.claude-flow/metrics/swarm-activity.json` — Active agent counts
-- `.claude-flow/security/audit-status.json` — CVE remediation status
+- `.claude/ruflo/metrics/v3-progress.json` — DDD domain progress
+- `.claude/ruflo/metrics/swarm-activity.json` — Active agent counts
+- `.claude/ruflo/security/audit-status.json` — CVE remediation status
 - **AgentDB files** — Vector count (estimated from file size), HNSW index status
 - Process detection via `ps aux` — Real-time memory and agent counts
 - Git branch via `git branch --show-current`
@@ -2773,7 +2773,7 @@ npx ruflo@v3alpha doctor --verbose
 ✅ Node.js      20.11.0 (required: 20+)
 ✅ npm          10.2.4 (required: 9+)
 ✅ Git          2.43.0
-✅ Config       Valid claude-flow.config.json
+✅ Config       Valid ruflo@claude-flow.config.json
 ✅ Daemon       Running (PID: 12345)
 ✅ Memory       SQLite healthy, 1.2MB
 ⚠️ API Keys    ANTHROPIC_API_KEY set, OPENAI_API_KEY missing
@@ -2987,10 +2987,10 @@ The statusline shows live context metrics read from `autopilot-state.json`:
 
 | Tier | Backend | Storage | Features |
 |------|---------|---------|----------|
-| 1 | **SQLite** (default) | `.claude-flow/data/transcript-archive.db` | WAL mode, indexed queries, ACID, importance ranking |
+| 1 | **SQLite** (default) | `.claude/ruflo/data/transcript-archive.db` | WAL mode, indexed queries, ACID, importance ranking |
 | 2 | **RuVector PostgreSQL** | Configurable remote | TB-scale, pgvector embeddings, GNN search |
 | 3 | **AgentDB + HNSW** | In-memory + persist | 150x-12,500x faster semantic search |
-| 4 | **JSON** (fallback) | `.claude-flow/data/transcript-archive.json` | Zero dependencies, always works |
+| 4 | **JSON** (fallback) | `.claude/ruflo/data/transcript-archive.json` | Zero dependencies, always works |
 
 ### Configuration
 
@@ -3015,7 +3015,7 @@ node .claude/helpers/context-persistence-hook.mjs status
 # Use /compact in Claude Code — autopilot allows manual, blocks auto
 
 # Query archive directly
-sqlite3 .claude-flow/data/transcript-archive.db \
+sqlite3 .claude/ruflo/data/transcript-archive.db \
   "SELECT COUNT(*), SUM(LENGTH(content)) FROM transcript_entries;"
 ```
 
@@ -6886,7 +6886,7 @@ export CLAUDE_FLOW_MEMORY_PATH="./data"
 | `CLAUDE_FLOW_MEMORY_TYPE` | Memory backend type (`json`, `sqlite`, `agentdb`, `hybrid`) | `hybrid` |
 | `CLAUDE_FLOW_SECURITY_MODE` | Security level (`strict`, `standard`, `permissive`) | `standard` |
 | `CLAUDE_FLOW_LOG_LEVEL` | Logging verbosity (`debug`, `info`, `warn`, `error`) | `info` |
-| `CLAUDE_FLOW_CONFIG` | Path to configuration file | `./claude-flow.config.json` |
+| `CLAUDE_FLOW_CONFIG` | Path to configuration file | `./ruflo@claude-flow.config.json` |
 | `NODE_ENV` | Node.js environment (`development`, `production`, `test`) | `development` |
 
 ### Swarm & Agents
@@ -7018,7 +7018,7 @@ CLAUDE_FLOW_HNSW_EF=200
 ### Configuration File Location
 
 Ruflo looks for configuration in this order:
-1. `./claude-flow.config.json` (project root)
+1. `./ruflo@claude-flow.config.json` (project root)
 2. `~/.config/ruflo/config.json` (user config)
 3. Environment variables (override any file config)
 
@@ -7358,7 +7358,7 @@ export CLAUDE_FLOW_HNSW_EF=100
 | **Hooks System** | Basic patterns | ReasoningBank + SONA | Self-learning |
 | **Security** | Manual validation | Automatic strict mode | More secure |
 | **CLI Commands** | Flat structure | Nested subcommands | New syntax |
-| **Config Format** | `.ruflo/config.json` | `claude-flow.config.json` | Update path |
+| **Config Format** | `.ruflo/config.json` | `ruflo@claude-flow.config.json` | Update path |
 
 ### Step-by-Step Migration
 
@@ -7410,7 +7410,7 @@ npx ruflo@v3alpha doctor --fix
 }
 ```
 
-**V3 Config (`claude-flow.config.json`)**:
+**V3 Config (`ruflo@claude-flow.config.json`)**:
 ```json
 {
   "version": "3.0.0",
@@ -7472,7 +7472,7 @@ cp -r ./data-backup-v2 ./data
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | `MODULE_NOT_FOUND` | Old package references | Update imports to `@claude-flow/*` |
-| `Config not found` | Path change | Rename to `claude-flow.config.json` |
+| `Config not found` | Path change | Rename to `ruflo@claude-flow.config.json` |
 | `Memory backend error` | Schema change | Run `migrate run` to convert |
 | `Hooks not working` | New hook names | Use new hook commands |
 | `Agent spawn fails` | Type name changes | Check `agent list` for new types |

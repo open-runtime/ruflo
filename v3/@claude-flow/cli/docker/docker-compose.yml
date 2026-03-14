@@ -53,7 +53,7 @@ services:
       - CLAUDE_FLOW_LOG_LEVEL=${CLAUDE_FLOW_LOG_LEVEL:-info}
       - CLAUDE_FLOW_MEMORY_BACKEND=hybrid
     volumes:
-      - ruflo-state:/home/ruflo/.claude-flow
+      - ruflo-state:/home/ruflo/.claude/ruflo
       - ruflo-logs:/var/log/ruflo
     ports:
       - "${RUFLO_MCP_PORT:-3000}:3000"
@@ -87,7 +87,7 @@ services:
       - CLAUDE_FLOW_WORKERS=${CLAUDE_FLOW_WORKERS:-audit,optimize,testgaps}
       - NODE_ENV=production
     volumes:
-      - worker-state:/home/ruflo/.claude-flow
+      - worker-state:/home/ruflo/.claude/ruflo
       - worker-logs:/var/log/ruflo
     deploy:
       replicas: ${RUFLO_WORKER_REPLICAS:-3}

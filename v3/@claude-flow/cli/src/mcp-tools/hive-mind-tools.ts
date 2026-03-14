@@ -7,9 +7,10 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { MCPTool } from './types.js';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
 // Storage paths
-const STORAGE_DIR = '.claude-flow';
+const STORAGE_DIR = PROJECT_RUNTIME_DIR;
 const HIVE_DIR = 'hive-mind';
 const HIVE_FILE = 'state.json';
 
@@ -95,7 +96,7 @@ function saveHiveState(state: HiveState): void {
 import { existsSync as agentStoreExists, readFileSync as readAgentStore, writeFileSync as writeAgentStore, mkdirSync as mkdirAgentStore } from 'node:fs';
 
 function loadAgentStore(): { agents: Record<string, unknown> } {
-  const storePath = join(process.cwd(), '.claude-flow', 'agents.json');
+  const storePath = join(process.cwd(), STORAGE_DIR, 'agents.json');
   try {
     if (agentStoreExists(storePath)) {
       return JSON.parse(readAgentStore(storePath, 'utf-8'));
@@ -105,7 +106,7 @@ function loadAgentStore(): { agents: Record<string, unknown> } {
 }
 
 function saveAgentStore(store: { agents: Record<string, unknown> }): void {
-  const storeDir = join(process.cwd(), '.claude-flow');
+  const storeDir = join(process.cwd(), STORAGE_DIR);
   if (!agentStoreExists(storeDir)) {
     mkdirAgentStore(storeDir, { recursive: true });
   }

@@ -128,7 +128,7 @@ npx claude-flow@v3alpha hooks pretrain \
 
 ### 4. Configuration Schema
 
-Add to `claude-flow.config.json`:
+Add to `ruflo@claude-flow.config.json`:
 
 ```json
 {

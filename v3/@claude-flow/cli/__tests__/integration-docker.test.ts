@@ -398,10 +398,10 @@ describe('MCP Bridge Dockerfile', () => {
     expect(dockerContent).toContain('COPY mcp-stdio-kernel.js ./');
   });
 
-  it('creates writable .claude-flow directories', () => {
-    expect(dockerContent).toContain('/app/.claude-flow/tasks');
-    expect(dockerContent).toContain('/app/.claude-flow/memory');
-    expect(dockerContent).toContain('/app/.claude-flow/sessions');
+  it('creates writable .claude/ruflo directories', () => {
+    expect(dockerContent).toContain('/app/.claude/ruflo/tasks');
+    expect(dockerContent).toContain('/app/.claude/ruflo/memory');
+    expect(dockerContent).toContain('/app/.claude/ruflo/sessions');
   });
 
   it('runs as non-root user', () => {

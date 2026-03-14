@@ -25,10 +25,9 @@ export function generateSettings(options: InitOptions): object {
   // Add permissions
   settings.permissions = {
     allow: [
-      'Bash(npx @claude-flow*)',
-      'Bash(npx claude-flow*)',
+      'Bash(ruflo*)',
       'Bash(node .claude/*)',
-      'mcp__claude-flow__:*',
+      'mcp__ruflo__:*',
     ],
     deny: [
       'Read(./.env)',
@@ -36,10 +35,10 @@ export function generateSettings(options: InitOptions): object {
     ],
   };
 
-  // Add claude-flow attribution for git commits and PRs
+  // Add ruflo attribution for git commits and PRs
   settings.attribution = {
-    commit: 'Co-Authored-By: claude-flow <ruv@ruv.net>',
-    pr: '🤖 Generated with [claude-flow](https://github.com/ruvnet/claude-flow)',
+    commit: 'Co-Authored-By: ruflo <ruv@ruv.net>',
+    pr: '🤖 Generated with [ruflo](https://github.com/open-runtime/ruflo)',
   };
 
   // Note: Claude Code expects 'model' to be a string, not an object

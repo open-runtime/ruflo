@@ -727,7 +727,7 @@ v3/@claude-flow/cli/src/
 
 ## Configuration
 
-### claude-flow.config.json
+### ruflo@claude-flow.config.json
 
 ```json
 {

@@ -16,9 +16,10 @@ import type { MCPTool } from './types.js';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import * as os from 'node:os';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
 // Storage paths
-const STORAGE_DIR = '.claude-flow';
+const STORAGE_DIR = PROJECT_RUNTIME_DIR;
 const PERF_DIR = 'performance';
 const METRICS_FILE = 'metrics.json';
 const BENCHMARKS_FILE = 'benchmarks.json';

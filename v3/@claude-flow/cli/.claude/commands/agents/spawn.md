@@ -11,7 +11,7 @@ Spawn a new agent with full V3 capabilities including neural patterns, memory in
 ## Usage
 
 ```bash
-npx claude-flow agent spawn [options]
+ruflo agent spawn [options]
 ```
 
 ## Options
@@ -30,74 +30,74 @@ npx claude-flow agent spawn [options]
 
 ### Core Development
 ```bash
-npx claude-flow agent spawn -t coder      # Code implementation
-npx claude-flow agent spawn -t reviewer   # Code review
-npx claude-flow agent spawn -t tester     # Testing
-npx claude-flow agent spawn -t planner    # Planning
-npx claude-flow agent spawn -t researcher # Research
+ruflo agent spawn -t coder      # Code implementation
+ruflo agent spawn -t reviewer   # Code review
+ruflo agent spawn -t tester     # Testing
+ruflo agent spawn -t planner    # Planning
+ruflo agent spawn -t researcher # Research
 ```
 
 ### V3 Specialized
 ```bash
-npx claude-flow agent spawn -t security-architect     # Security design
-npx claude-flow agent spawn -t security-auditor       # CVE remediation
-npx claude-flow agent spawn -t memory-specialist      # AgentDB (150x-12,500x faster)
-npx claude-flow agent spawn -t performance-engineer   # 2.49x-7.47x optimization
-npx claude-flow agent spawn -t core-architect         # DDD design
+ruflo agent spawn -t security-architect     # Security design
+ruflo agent spawn -t security-auditor       # CVE remediation
+ruflo agent spawn -t memory-specialist      # AgentDB (150x-12,500x faster)
+ruflo agent spawn -t performance-engineer   # 2.49x-7.47x optimization
+ruflo agent spawn -t core-architect         # DDD design
 ```
 
 ### Swarm Coordination
 ```bash
-npx claude-flow agent spawn -t hierarchical-coordinator  # Queen-led
-npx claude-flow agent spawn -t mesh-coordinator          # P2P network
-npx claude-flow agent spawn -t adaptive-coordinator      # Dynamic topology
-npx claude-flow agent spawn -t collective-intelligence-coordinator
+ruflo agent spawn -t hierarchical-coordinator  # Queen-led
+ruflo agent spawn -t mesh-coordinator          # P2P network
+ruflo agent spawn -t adaptive-coordinator      # Dynamic topology
+ruflo agent spawn -t collective-intelligence-coordinator
 ```
 
 ### Consensus Agents
 ```bash
-npx claude-flow agent spawn -t byzantine-coordinator  # BFT consensus
-npx claude-flow agent spawn -t raft-manager          # Leader-based
-npx claude-flow agent spawn -t gossip-coordinator    # Eventual consistency
-npx claude-flow agent spawn -t crdt-synchronizer     # CRDT replication
-npx claude-flow agent spawn -t quorum-manager        # Quorum-based
+ruflo agent spawn -t byzantine-coordinator  # BFT consensus
+ruflo agent spawn -t raft-manager          # Leader-based
+ruflo agent spawn -t gossip-coordinator    # Eventual consistency
+ruflo agent spawn -t crdt-synchronizer     # CRDT replication
+ruflo agent spawn -t quorum-manager        # Quorum-based
 ```
 
 ### GitHub Integration
 ```bash
-npx claude-flow agent spawn -t pr-manager           # PR lifecycle
-npx claude-flow agent spawn -t code-review-swarm    # Multi-agent review
-npx claude-flow agent spawn -t issue-tracker        # Issue management
-npx claude-flow agent spawn -t release-manager      # Release coordination
-npx claude-flow agent spawn -t workflow-automation  # CI/CD automation
+ruflo agent spawn -t pr-manager           # PR lifecycle
+ruflo agent spawn -t code-review-swarm    # Multi-agent review
+ruflo agent spawn -t issue-tracker        # Issue management
+ruflo agent spawn -t release-manager      # Release coordination
+ruflo agent spawn -t workflow-automation  # CI/CD automation
 ```
 
 ### SPARC Methodology
 ```bash
-npx claude-flow agent spawn -t sparc-coordinator    # SPARC orchestration
-npx claude-flow agent spawn -t specification        # Requirements
-npx claude-flow agent spawn -t pseudocode          # Algorithm design
-npx claude-flow agent spawn -t architecture        # System design
-npx claude-flow agent spawn -t refinement          # Iterative improvement
+ruflo agent spawn -t sparc-coordinator    # SPARC orchestration
+ruflo agent spawn -t specification        # Requirements
+ruflo agent spawn -t pseudocode          # Algorithm design
+ruflo agent spawn -t architecture        # System design
+ruflo agent spawn -t refinement          # Iterative improvement
 ```
 
 ## Examples
 
 ```bash
 # Spawn with custom name
-npx claude-flow agent spawn -t coder --name feature-bot
+ruflo agent spawn -t coder --name feature-bot
 
 # Spawn with initial task
-npx claude-flow agent spawn -t researcher --task "Research React 19 features"
+ruflo agent spawn -t researcher --task "Research React 19 features"
 
 # Spawn with specific model
-npx claude-flow agent spawn -t architect -m claude-3-opus-20240229
+ruflo agent spawn -t architect -m claude-3-opus-20240229
 
 # Spawn with custom timeout
-npx claude-flow agent spawn -t tester --timeout 600
+ruflo agent spawn -t tester --timeout 600
 
 # Spawn using OpenRouter
-npx claude-flow agent spawn -t coder -p openrouter -m anthropic/claude-3.5-sonnet
+ruflo agent spawn -t coder -p openrouter -m anthropic/claude-3.5-sonnet
 ```
 
 ## Using Claude Code's Task Tool
@@ -116,8 +116,8 @@ Task("Reviewer", "Review auth implementation", "reviewer")
 Use MCP tools only for swarm coordination setup:
 
 ```javascript
-mcp__claude-flow__swarm_init({ topology: "hierarchical", maxAgents: 15 })
-mcp__claude-flow__agent_spawn({ type: "coordinator", name: "queen" })
+mcp__ruflo__swarm_init({ topology: "hierarchical", maxAgents: 15 })
+mcp__ruflo__agent_spawn({ type: "coordinator", name: "queen" })
 ```
 
 ## Output

@@ -14,6 +14,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import type { InitOptions, InitResult, PlatformInfo } from './types.js';
 import { detectPlatform, DEFAULT_INIT_OPTIONS } from './types.js';
+import {
+  PROJECT_RUNTIME_DIR,
+  joinProjectRuntimePath,
+  displayProjectRuntimePath,
+} from '../utils/runtime-paths.js';
 import { generateSettingsJson, generateSettings } from './settings-generator.js';
 import { generateMCPJson } from './mcp-generator.js';
 import { generateStatuslineScript, generateStatuslineHook } from './statusline-generator.js';
@@ -83,7 +88,7 @@ const SKILLS_MAP: Record<string, string[]> = {
  * Commands to copy based on configuration
  */
 const COMMANDS_MAP: Record<string, string[]> = {
-  core: ['claude-flow-help.md', 'claude-flow-swarm.md', 'claude-flow-memory.md'],
+  core: ['ruflo-help.md', 'ruflo-swarm.md', 'ruflo-memory.md'],
   analysis: ['analysis'],
   automation: ['automation'],
   github: ['github'],
@@ -137,13 +142,13 @@ const DIRECTORIES = {
     '.claude/helpers',
   ],
   runtime: [
-    '.claude-flow',
-    '.claude-flow/data',
-    '.claude-flow/logs',
-    '.claude-flow/sessions',
-    '.claude-flow/hooks',
-    '.claude-flow/agents',
-    '.claude-flow/workflows',
+    PROJECT_RUNTIME_DIR,
+    path.join(PROJECT_RUNTIME_DIR, 'data'),
+    path.join(PROJECT_RUNTIME_DIR, 'logs'),
+    path.join(PROJECT_RUNTIME_DIR, 'sessions'),
+    path.join(PROJECT_RUNTIME_DIR, 'hooks'),
+    path.join(PROJECT_RUNTIME_DIR, 'agents'),
+    path.join(PROJECT_RUNTIME_DIR, 'workflows'),
   ],
 };
 
@@ -405,9 +410,9 @@ export async function executeUpgrade(targetDir: string, upgradeSettings = false)
     // Ensure required directories exist
     const dirs = [
       '.claude/helpers',
-      '.claude-flow/metrics',
-      '.claude-flow/security',
-      '.claude-flow/learning',
+      path.join(PROJECT_RUNTIME_DIR, 'metrics'),
+      path.join(PROJECT_RUNTIME_DIR, 'security'),
+      path.join(PROJECT_RUNTIME_DIR, 'learning'),
     ];
 
     for (const dir of dirs) {
@@ -475,8 +480,8 @@ export async function executeUpgrade(targetDir: string, upgradeSettings = false)
     fs.writeFileSync(statuslinePath, statuslineContent, 'utf-8');
 
     // 2. Create MISSING metrics files only (preserve existing data)
-    const metricsDir = path.join(targetDir, '.claude-flow', 'metrics');
-    const securityDir = path.join(targetDir, '.claude-flow', 'security');
+    const metricsDir = joinProjectRuntimePath(targetDir, 'metrics');
+    const securityDir = joinProjectRuntimePath(targetDir, 'security');
 
     // v3-progress.json
     const progressPath = path.join(metricsDir, 'v3-progress.json');
@@ -491,9 +496,9 @@ export async function executeUpgrade(targetDir: string, upgradeSettings = false)
         _note: 'Metrics will update as you use Claude Flow'
       };
       fs.writeFileSync(progressPath, JSON.stringify(progress, null, 2), 'utf-8');
-      result.created.push('.claude-flow/metrics/v3-progress.json');
+      result.created.push(displayProjectRuntimePath('metrics', 'v3-progress.json'));
     } else {
-      result.preserved.push('.claude-flow/metrics/v3-progress.json');
+      result.preserved.push(displayProjectRuntimePath('metrics', 'v3-progress.json'));
     }
 
     // swarm-activity.json
@@ -507,9 +512,9 @@ export async function executeUpgrade(targetDir: string, upgradeSettings = false)
         _initialized: true
       };
       fs.writeFileSync(activityPath, JSON.stringify(activity, null, 2), 'utf-8');
-      result.created.push('.claude-flow/metrics/swarm-activity.json');
+      result.created.push(displayProjectRuntimePath('metrics', 'swarm-activity.json'));
     } else {
-      result.preserved.push('.claude-flow/metrics/swarm-activity.json');
+      result.preserved.push(displayProjectRuntimePath('metrics', 'swarm-activity.json'));
     }
 
     // learning.json
@@ -523,9 +528,9 @@ export async function executeUpgrade(targetDir: string, upgradeSettings = false)
         _note: 'Intelligence grows as you use Claude Flow'
       };
       fs.writeFileSync(learningPath, JSON.stringify(learning, null, 2), 'utf-8');
-      result.created.push('.claude-flow/metrics/learning.json');
+      result.created.push(displayProjectRuntimePath('metrics', 'learning.json'));
     } else {
-      result.preserved.push('.claude-flow/metrics/learning.json');
+      result.preserved.push(displayProjectRuntimePath('metrics', 'learning.json'));
     }
 
     // audit-status.json
@@ -540,9 +545,9 @@ export async function executeUpgrade(targetDir: string, upgradeSettings = false)
         _note: 'Run: npx @claude-flow/cli@latest security scan'
       };
       fs.writeFileSync(auditPath, JSON.stringify(audit, null, 2), 'utf-8');
-      result.created.push('.claude-flow/security/audit-status.json');
+      result.created.push(displayProjectRuntimePath('security', 'audit-status.json'));
     } else {
-      result.preserved.push('.claude-flow/security/audit-status.json');
+      result.preserved.push(displayProjectRuntimePath('security', 'audit-status.json'));
     }
 
     // 3. Merge settings if requested
@@ -1145,17 +1150,17 @@ async function writeStatusline(
 }
 
 /**
- * Write runtime configuration (.claude-flow/)
+ * Write runtime configuration (.claude/ruflo/)
  */
 async function writeRuntimeConfig(
   targetDir: string,
   options: InitOptions,
   result: InitResult
 ): Promise<void> {
-  const configPath = path.join(targetDir, '.claude-flow', 'config.yaml');
+  const configPath = joinProjectRuntimePath(targetDir, 'config.yaml');
 
   if (fs.existsSync(configPath) && !options.force) {
-    result.skipped.push('.claude-flow/config.yaml');
+    result.skipped.push(displayProjectRuntimePath('config.yaml'));
     return;
   }
 
@@ -1173,7 +1178,7 @@ swarm:
 memory:
   backend: ${options.runtime.memoryBackend}
   enableHNSW: ${options.runtime.enableHNSW}
-  persistPath: .claude-flow/data
+  persistPath: ${displayProjectRuntimePath('data')}
   cacheSize: 100
   # ADR-049: Self-Learning Memory
   learningBridge:
@@ -1193,7 +1198,7 @@ memory:
 
 neural:
   enabled: ${options.runtime.enableNeural}
-  modelPath: .claude-flow/neural
+  modelPath: ${displayProjectRuntimePath('neural')}
 
 hooks:
   enabled: true
@@ -1205,10 +1210,10 @@ mcp:
 `;
 
   fs.writeFileSync(configPath, config, 'utf-8');
-  result.created.files.push('.claude-flow/config.yaml');
+  result.created.files.push(displayProjectRuntimePath('config.yaml'));
 
   // Write .gitignore
-  const gitignorePath = path.join(targetDir, '.claude-flow', '.gitignore');
+  const gitignorePath = joinProjectRuntimePath(targetDir, '.gitignore');
   const gitignore = `# Claude Flow runtime files
 data/
 logs/
@@ -1220,7 +1225,7 @@ neural/
 
   if (!fs.existsSync(gitignorePath) || options.force) {
     fs.writeFileSync(gitignorePath, gitignore, 'utf-8');
-    result.created.files.push('.claude-flow/.gitignore');
+    result.created.files.push(displayProjectRuntimePath('.gitignore'));
   }
 
   // Write CAPABILITIES.md with full system overview
@@ -1236,9 +1241,9 @@ async function writeInitialMetrics(
   options: InitOptions,
   result: InitResult
 ): Promise<void> {
-  const metricsDir = path.join(targetDir, '.claude-flow', 'metrics');
-  const learningDir = path.join(targetDir, '.claude-flow', 'learning');
-  const securityDir = path.join(targetDir, '.claude-flow', 'security');
+  const metricsDir = joinProjectRuntimePath(targetDir, 'metrics');
+  const learningDir = joinProjectRuntimePath(targetDir, 'learning');
+  const securityDir = joinProjectRuntimePath(targetDir, 'security');
 
   // Ensure directories exist
   for (const dir of [metricsDir, learningDir, securityDir]) {
@@ -1277,7 +1282,7 @@ async function writeInitialMetrics(
       _note: 'Metrics will update as you use Claude Flow. Run: npx @claude-flow/cli@latest daemon start'
     };
     fs.writeFileSync(progressPath, JSON.stringify(progress, null, 2), 'utf-8');
-    result.created.files.push('.claude-flow/metrics/v3-progress.json');
+    result.created.files.push(displayProjectRuntimePath('metrics', 'v3-progress.json'));
   }
 
   // Create initial swarm-activity.json
@@ -1302,7 +1307,7 @@ async function writeInitialMetrics(
       _initialized: true
     };
     fs.writeFileSync(activityPath, JSON.stringify(activity, null, 2), 'utf-8');
-    result.created.files.push('.claude-flow/metrics/swarm-activity.json');
+    result.created.files.push(displayProjectRuntimePath('metrics', 'swarm-activity.json'));
   }
 
   // Create initial learning.json
@@ -1326,7 +1331,7 @@ async function writeInitialMetrics(
       _note: 'Intelligence grows as you use Claude Flow'
     };
     fs.writeFileSync(learningPath, JSON.stringify(learning, null, 2), 'utf-8');
-    result.created.files.push('.claude-flow/metrics/learning.json');
+    result.created.files.push(displayProjectRuntimePath('metrics', 'learning.json'));
   }
 
   // Create initial audit-status.json
@@ -1341,7 +1346,7 @@ async function writeInitialMetrics(
       _note: 'Run: npx @claude-flow/cli@latest security scan'
     };
     fs.writeFileSync(auditPath, JSON.stringify(audit, null, 2), 'utf-8');
-    result.created.files.push('.claude-flow/security/audit-status.json');
+    result.created.files.push(displayProjectRuntimePath('security', 'audit-status.json'));
   }
 }
 
@@ -1353,10 +1358,10 @@ async function writeCapabilitiesDoc(
   options: InitOptions,
   result: InitResult
 ): Promise<void> {
-  const capabilitiesPath = path.join(targetDir, '.claude-flow', 'CAPABILITIES.md');
+  const capabilitiesPath = joinProjectRuntimePath(targetDir, 'CAPABILITIES.md');
 
   if (fs.existsSync(capabilitiesPath) && !options.force) {
-    result.skipped.push('.claude-flow/CAPABILITIES.md');
+    result.skipped.push(displayProjectRuntimePath('CAPABILITIES.md'));
     return;
   }
 
@@ -1712,7 +1717,7 @@ npx @claude-flow/cli@latest hive-mind consensus --propose "task"
 ### MCP Server Setup
 \`\`\`bash
 # Add Claude Flow MCP
-claude mcp add claude-flow -- npx -y @claude-flow/cli@latest
+claude mcp add ruflo -- npx -y @claude-flow/cli@latest
 
 # Optional servers
 claude mcp add ruv-swarm -- npx -y ruv-swarm mcp start
@@ -1748,7 +1753,7 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
 
 ### File Structure
 \`\`\`
-.claude-flow/
+${displayProjectRuntimePath()}/
 ├── config.yaml      # Runtime configuration
 ├── CAPABILITIES.md  # This file
 ├── data/            # Memory storage
@@ -1766,7 +1771,7 @@ npx @claude-flow/cli@latest hooks worker dispatch --trigger optimize
 `;
 
   fs.writeFileSync(capabilitiesPath, capabilities, 'utf-8');
-  result.created.files.push('.claude-flow/CAPABILITIES.md');
+  result.created.files.push(displayProjectRuntimePath('CAPABILITIES.md'));
 }
 
 /**

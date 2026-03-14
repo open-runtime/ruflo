@@ -113,7 +113,7 @@ describe('PluginManager', () => {
   });
 
   it('should return correct plugins dir and manifest path', () => {
-    expect(manager.getPluginsDir()).toContain('.claude-flow/plugins');
+    expect(manager.getPluginsDir()).toContain('.claude/ruflo/plugins');
     expect(manager.getManifestPath()).toContain('installed.json');
   });
 
@@ -898,7 +898,7 @@ describe('Config Adapter', () => {
     const v3 = systemConfigToV3Config({} as any);
     const sys = v3ConfigToSystemConfig(v3);
     expect(sys.swarm?.topology).toBe('hierarchical');
-    expect(sys.mcp?.name).toBe('claude-flow');
+    expect(sys.mcp?.name).toBe('ruflo');
   });
 
   it('should denormalize hybrid topology to hierarchical-mesh', () => {

@@ -4,7 +4,7 @@ Complete configuration guide for pair programming sessions.
 
 ## Configuration File
 
-Main configuration file: `.claude-flow/pair-config.json`
+Main configuration file: `.claude/ruflo/pair-config.json`
 
 ## Basic Configuration
 
@@ -356,41 +356,41 @@ export CLAUDE_PAIR_AUTO_TEST=true
 ### Set Configuration
 ```bash
 # Set single value
-claude-flow pair config set defaultMode switch
+ruflo pair config set defaultMode switch
 
 # Set nested value
-claude-flow pair config set verification.threshold 0.98
+ruflo pair config set verification.threshold 0.98
 
 # Set from file
-claude-flow pair config import config.json
+ruflo pair config import config.json
 ```
 
 ### Get Configuration
 ```bash
 # Get all configuration
-claude-flow pair config get
+ruflo pair config get
 
 # Get specific value
-claude-flow pair config get defaultMode
+ruflo pair config get defaultMode
 
 # Export configuration
-claude-flow pair config export > config.json
+ruflo pair config export > config.json
 ```
 
 ### Reset Configuration
 ```bash
 # Reset to defaults
-claude-flow pair config reset
+ruflo pair config reset
 
 # Reset specific section
-claude-flow pair config reset verification
+ruflo pair config reset verification
 ```
 
 ## Profile Management
 
 ### Create Profile
 ```bash
-claude-flow pair profile create refactoring \
+ruflo pair profile create refactoring \
   --mode driver \
   --verify true \
   --threshold 0.98 \
@@ -399,12 +399,12 @@ claude-flow pair profile create refactoring \
 
 ### Use Profile
 ```bash
-claude-flow pair --start --profile refactoring
+ruflo pair --start --profile refactoring
 ```
 
 ### List Profiles
 ```bash
-claude-flow pair profile list
+ruflo pair profile list
 ```
 
 ### Profiles Configuration
@@ -438,13 +438,13 @@ claude-flow pair profile list
 ## Workspace Configuration
 
 ### Project-Specific
-`.claude-flow/pair-config.json` in project root
+`.claude/ruflo/pair-config.json` in project root
 
 ### User-Specific
-`~/.claude-flow/pair-config.json`
+`~/.claude/ruflo/pair-config.json`
 
 ### Global
-`/etc/claude-flow/pair-config.json`
+`/etc/ruflo/pair-config.json`
 
 ### Priority Order
 1. Command-line arguments
@@ -458,26 +458,26 @@ claude-flow pair profile list
 
 ```bash
 # Validate configuration
-claude-flow pair config validate
+ruflo pair config validate
 
 # Test configuration
-claude-flow pair config test
+ruflo pair config test
 ```
 
 ## Migration
 
 ### From Version 1.x
 ```bash
-claude-flow pair config migrate --from 1.x
+ruflo pair config migrate --from 1.x
 ```
 
 ### Export/Import
 ```bash
 # Export current config
-claude-flow pair config export > my-config.json
+ruflo pair config export > my-config.json
 
 # Import config
-claude-flow pair config import my-config.json
+ruflo pair config import my-config.json
 ```
 
 ## Best Practices

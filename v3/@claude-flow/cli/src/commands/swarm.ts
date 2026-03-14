@@ -13,10 +13,11 @@ import * as path from 'path';
 // Get dynamic swarm status from memory/session files
 function getSwarmStatus(swarmId?: string) {
   const swarmDir = path.join(process.cwd(), '.swarm');
-  const sessionDir = path.join(process.cwd(), '.claude', 'sessions');
+  const sessionDir = path.join(process.cwd(), '.claude', 'ruflo', 'sessions');
   const memoryPaths = [
     path.join(process.cwd(), '.swarm', 'memory.db'),
-    path.join(process.cwd(), '.claude', 'memory.db'),
+    path.join(process.cwd(), '.claude', 'ruflo', 'memory.db'),
+    path.join(process.cwd(), 'data', 'memory.db'),
   ];
 
   // Check for active swarm state file
@@ -374,8 +375,8 @@ const startCommand: Command = {
     }
   ],
   examples: [
-    { command: 'claude-flow swarm start -o "Build REST API" -s development', description: 'Start development swarm' },
-    { command: 'claude-flow swarm start -o "Analyze codebase" --parallel', description: 'Parallel analysis' }
+    { command: 'ruflo swarm start -o "Build REST API" -s development', description: 'Start development swarm' },
+    { command: 'ruflo swarm start -o "Analyze codebase" --parallel', description: 'Parallel analysis' }
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     const objective = ctx.args[0] || ctx.flags.objective as string;
@@ -452,7 +453,7 @@ const startCommand: Command = {
 
     output.writeln();
     output.printSuccess('Swarm execution started');
-    output.writeln(output.dim(`  Monitor: claude-flow swarm status ${executionState.swarmId}`));
+    output.writeln(output.dim(`  Monitor: ruflo swarm status ${executionState.swarmId}`));
 
     return { success: true, data: executionState };
   }
@@ -737,15 +738,15 @@ export const swarmCommand: Command = {
   subcommands: [initCommand, startCommand, statusCommand, stopCommand, scaleCommand, coordinateCommand],
   options: [],
   examples: [
-    { command: 'claude-flow swarm init --v3-mode', description: 'Initialize V3 swarm' },
-    { command: 'claude-flow swarm start -o "Build API" -s development', description: 'Start development swarm' },
-    { command: 'claude-flow swarm coordinate --agents 15', description: 'V3 coordination' }
+    { command: 'ruflo swarm init --v3-mode', description: 'Initialize V3 swarm' },
+    { command: 'ruflo swarm start -o "Build API" -s development', description: 'Start development swarm' },
+    { command: 'ruflo swarm coordinate --agents 15', description: 'V3 coordination' }
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     output.writeln();
     output.writeln(output.bold('Swarm Coordination Commands'));
     output.writeln();
-    output.writeln('Usage: claude-flow swarm <subcommand> [options]');
+    output.writeln('Usage: ruflo swarm <subcommand> [options]');
     output.writeln();
     output.writeln('Subcommands:');
     output.printList([

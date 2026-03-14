@@ -4,8 +4,9 @@
 
 set -e
 
-METRICS_DIR=".claude-flow/metrics"
-SECURITY_DIR=".claude-flow/security"
+PROJECT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+METRICS_DIR="$PROJECT_ROOT/.claude/ruflo/metrics"
+SECURITY_DIR="$PROJECT_ROOT/.claude/ruflo/security"
 
 # Ensure directories exist
 mkdir -p "$METRICS_DIR" "$SECURITY_DIR"

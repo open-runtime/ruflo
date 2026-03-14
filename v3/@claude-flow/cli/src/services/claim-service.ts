@@ -17,6 +17,7 @@ import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
+import { joinProjectRuntimePath } from '../utils/runtime-paths.js';
 
 // ============================================================================
 // Types
@@ -214,7 +215,7 @@ export class ClaimService extends EventEmitter {
 
   constructor(projectRoot: string, config?: Partial<WorkStealingConfig>) {
     super();
-    this.storagePath = path.join(projectRoot, '.claude-flow', 'claims');
+    this.storagePath = joinProjectRuntimePath(projectRoot, 'claims');
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
 

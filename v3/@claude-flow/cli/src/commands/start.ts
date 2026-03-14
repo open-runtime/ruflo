@@ -9,6 +9,7 @@ import { confirm, select } from '../prompt.js';
 import { callMCPTool, MCPClientError } from '../mcp-client.js';
 import * as fs from 'fs';
 import * as path from 'path';
+import { joinProjectRuntimePath } from '../utils/runtime-paths.js';
 
 // Default configuration
 const DEFAULT_PORT = 3000;
@@ -17,7 +18,7 @@ const DEFAULT_MAX_AGENTS = 15;
 
 // Check if project is initialized
 function isInitialized(cwd: string): boolean {
-  const configPath = path.join(cwd, '.claude-flow', 'config.yaml');
+  const configPath = joinProjectRuntimePath(cwd, 'config.yaml');
   return fs.existsSync(configPath);
 }
 
@@ -75,7 +76,7 @@ function parseSimpleYaml(content: string): Record<string, unknown> {
 
 // Load configuration
 function loadConfig(cwd: string): Record<string, unknown> | null {
-  const configPath = path.join(cwd, '.claude-flow', 'config.yaml');
+  const configPath = joinProjectRuntimePath(cwd, 'config.yaml');
   if (!fs.existsSync(configPath)) return null;
 
   try {
@@ -204,19 +205,19 @@ const startAction = async (ctx: CommandContext): Promise<CommandResult> => {
     output.writeln();
     output.writeln(output.bold('Quick Commands:'));
     output.printList([
-      `${output.highlight('claude-flow status')} - View system status`,
-      `${output.highlight('claude-flow agent spawn -t coder')} - Spawn an agent`,
-      `${output.highlight('claude-flow swarm status')} - View swarm details`,
-      `${output.highlight('claude-flow stop')} - Stop the system`
+      `${output.highlight('ruflo status')} - View system status`,
+      `${output.highlight('ruflo agent spawn -t coder')} - Spawn an agent`,
+      `${output.highlight('ruflo swarm status')} - View swarm details`,
+      `${output.highlight('ruflo stop')} - Stop the system`
     ]);
 
     // Daemon mode
     if (daemon) {
       output.writeln();
-      output.printInfo('Running in daemon mode. Use "claude-flow stop" to stop.');
+      output.printInfo('Running in daemon mode. Use "ruflo stop" to stop.');
 
       // Store PID for daemon management
-      const daemonPidPath = path.join(cwd, '.claude-flow', 'daemon.pid');
+      const daemonPidPath = joinProjectRuntimePath(cwd, 'daemon.pid');
       fs.writeFileSync(daemonPidPath, String(process.pid));
 
       // Detach from parent process for true daemon behavior
@@ -338,7 +339,7 @@ const stopCommand: Command = {
       }
 
       // Clean up daemon PID
-      const daemonPidPath = path.join(ctx.cwd, '.claude-flow', 'daemon.pid');
+      const daemonPidPath = joinProjectRuntimePath(ctx.cwd, 'daemon.pid');
       if (fs.existsSync(daemonPidPath)) {
         fs.unlinkSync(daemonPidPath);
       }
@@ -464,13 +465,13 @@ export const startCommand: Command = {
     }
   ],
   examples: [
-    { command: 'claude-flow start', description: 'Start with configuration defaults' },
-    { command: 'claude-flow start --daemon', description: 'Start as background daemon' },
-    { command: 'claude-flow start --port 3001', description: 'Start MCP on custom port' },
-    { command: 'claude-flow start --topology mesh', description: 'Start with mesh topology' },
-    { command: 'claude-flow start --skip-mcp', description: 'Start without MCP server' },
-    { command: 'claude-flow start quick', description: 'Quick start with defaults' },
-    { command: 'claude-flow start stop', description: 'Stop the running system' }
+    { command: 'ruflo start', description: 'Start with configuration defaults' },
+    { command: 'ruflo start --daemon', description: 'Start as background daemon' },
+    { command: 'ruflo start --port 3001', description: 'Start MCP on custom port' },
+    { command: 'ruflo start --topology mesh', description: 'Start with mesh topology' },
+    { command: 'ruflo start --skip-mcp', description: 'Start without MCP server' },
+    { command: 'ruflo start quick', description: 'Quick start with defaults' },
+    { command: 'ruflo start stop', description: 'Stop the running system' }
   ],
   action: startAction
 };

@@ -44,7 +44,7 @@ services:
       - NODE_ENV=production
     volumes:
       - workspace:/workspace:ro
-      - claude-flow-state:/root/.claude-flow
+      - claude-flow-state:/root/.claude/ruflo
       - worker-logs:/var/log/claude-flow
     command: npx claude-flow@v3alpha daemon start --foreground --headless
     networks:
@@ -71,7 +71,7 @@ services:
       - MAX_WORKERS=${MAX_WORKERS:-10}
       - NODE_ENV=production
     volumes:
-      - claude-flow-state:/root/.claude-flow
+      - claude-flow-state:/root/.claude/ruflo
       - queue-logs:/var/log/queue-manager
     command: npx claude-flow@v3alpha queue manager --workers ${MAX_WORKERS:-10}
     networks:

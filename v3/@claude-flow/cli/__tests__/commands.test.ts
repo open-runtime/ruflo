@@ -8,6 +8,7 @@ import { agentCommand } from '../src/commands/agent.js';
 import { swarmCommand } from '../src/commands/swarm.js';
 import { memoryCommand } from '../src/commands/memory.js';
 import { configCommand } from '../src/commands/config.js';
+import { output } from '../src/output.js';
 import type { CommandContext } from '../src/types.js';
 
 // Mock MCP client
@@ -470,6 +471,35 @@ describe('Swarm Commands', () => {
       expect(result.data).toHaveProperty('tasks');
       expect(result.data).toHaveProperty('metrics');
     });
+
+    it('reads canonical runtime session and memory paths', async () => {
+      vi.resetModules();
+
+      const existsSync = vi.fn(() => false);
+      const readFileSync = vi.fn(() => '{}');
+      const readdirSync = vi.fn(() => []);
+      const statSync = vi.fn(() => ({ size: 0 }));
+
+      vi.doMock('fs', () => ({
+        existsSync,
+        readFileSync,
+        readdirSync,
+        statSync,
+      }));
+
+      const { swarmCommand } = await import('../src/commands/swarm.js');
+      const statusCmd = swarmCommand.subcommands?.find(c => c.name === 'status');
+      expect(statusCmd).toBeDefined();
+
+      const result = await statusCmd!.action!(ctx);
+      expect(result.success).toBe(true);
+
+      const checkedPaths = existsSync.mock.calls.map(([checkedPath]) => String(checkedPath));
+      expect(checkedPaths.some((checkedPath) => checkedPath.endsWith('/.claude/ruflo/sessions'))).toBe(true);
+      expect(checkedPaths.some((checkedPath) => checkedPath.endsWith('/.claude/ruflo/memory.db'))).toBe(true);
+      expect(checkedPaths.some((checkedPath) => checkedPath.endsWith('/.claude/sessions'))).toBe(false);
+      expect(checkedPaths.some((checkedPath) => checkedPath.endsWith('/.claude/memory.db'))).toBe(false);
+    });
   });
 
   describe('swarm stop', () => {
@@ -716,6 +746,136 @@ describe('Memory Commands', () => {
       expect(shutdownBridge).toHaveBeenCalledTimes(1);
     });
 
+    it('prints ruflo next-step commands after initialization', async () => {
+      vi.resetModules();
+
+      const initializeMemoryDatabase = vi.fn(async () => ({
+        success: true,
+        backend: 'hybrid',
+        dbPath: '/tmp/test-memory.db',
+        schemaVersion: '3.0.0',
+        tablesCreated: [],
+        indexesCreated: [],
+        features: {
+          vectorEmbeddings: true,
+          patternLearning: true,
+          temporalDecay: true,
+          hnswIndexing: true,
+          migrationTracking: true,
+        },
+      }));
+      const loadEmbeddingModel = vi.fn(async () => ({
+        success: true,
+        dimensions: 2048,
+        modelName: 'voyage-code-3',
+        loadTime: 1,
+      }));
+      const verifyMemoryInit = vi.fn(async () => ({
+        success: true,
+        tests: [],
+        summary: { passed: 1, failed: 0, total: 1 },
+      }));
+      const shutdownBridge = vi.fn(async () => {});
+
+      vi.doMock('../src/memory/memory-initializer.js', () => ({
+        initializeMemoryDatabase,
+        loadEmbeddingModel,
+        verifyMemoryInit,
+      }));
+      vi.doMock('../src/memory/memory-bridge.js', () => ({
+        shutdownBridge,
+      }));
+
+      const { memoryCommand: freshMemoryCommand } = await import('../src/commands/memory.js');
+      const initCmd = freshMemoryCommand.subcommands?.find(c => c.name === 'init');
+      expect(initCmd).toBeDefined();
+
+      vi.mocked(output.printList).mockClear();
+
+      const result = await initCmd!.action!({
+        args: [],
+        flags: { force: true, verify: true, _: [] },
+        cwd: '/test',
+        interactive: false,
+      });
+
+      expect(result.success).toBe(true);
+      const nextSteps = vi.mocked(output.printList).mock.calls.at(-1)?.[0] as string[];
+      expect(nextSteps).toContain('Store data: ruflo memory store -k "key" --value "data"');
+      expect(nextSteps).toContain('Search: ruflo memory search -q "query"');
+      expect(nextSteps).toContain('Train patterns: ruflo neural train -p coordination');
+      expect(nextSteps).toContain('View stats: ruflo memory stats');
+    });
+
+    it('does not recreate a compatibility copy under .claude/memory.db', async () => {
+      vi.resetModules();
+
+      const initializeMemoryDatabase = vi.fn(async () => ({
+        success: true,
+        backend: 'hybrid',
+        dbPath: '/tmp/test-memory.db',
+        schemaVersion: '3.0.0',
+        tablesCreated: [],
+        indexesCreated: [],
+        features: {
+          vectorEmbeddings: true,
+          patternLearning: true,
+          temporalDecay: true,
+          hnswIndexing: true,
+          migrationTracking: true,
+        },
+      }));
+      const loadEmbeddingModel = vi.fn(async () => ({
+        success: true,
+        dimensions: 2048,
+        modelName: 'voyage-code-3',
+        loadTime: 1,
+      }));
+      const verifyMemoryInit = vi.fn(async () => ({
+        success: true,
+        tests: [],
+        summary: { passed: 1, failed: 0, total: 1 },
+      }));
+      const shutdownBridge = vi.fn(async () => {});
+      const existsSync = vi.fn((target: string) => target === '/tmp/test-memory.db');
+      const mkdirSync = vi.fn();
+      const copyFileSync = vi.fn();
+
+      vi.doMock('../src/memory/memory-initializer.js', () => ({
+        initializeMemoryDatabase,
+        loadEmbeddingModel,
+        verifyMemoryInit,
+      }));
+      vi.doMock('../src/memory/memory-bridge.js', () => ({
+        shutdownBridge,
+      }));
+      vi.doMock('fs', async () => {
+        const actual = await vi.importActual<typeof import('fs')>('fs');
+        return {
+          ...actual,
+          existsSync,
+          mkdirSync,
+          copyFileSync,
+        };
+      });
+
+      const { memoryCommand: freshMemoryCommand } = await import('../src/commands/memory.js');
+      const initCmd = freshMemoryCommand.subcommands?.find(c => c.name === 'init');
+      expect(initCmd).toBeDefined();
+
+      const result = await initCmd!.action!({
+        args: [],
+        flags: { force: true, verify: false, _: [] },
+        cwd: '/test',
+        interactive: false,
+      });
+
+      expect(result.success).toBe(true);
+      expect(mkdirSync).not.toHaveBeenCalled();
+      expect(copyFileSync).not.toHaveBeenCalled();
+      expect(shutdownBridge).toHaveBeenCalledTimes(1);
+    });
+
     it('shuts down the memory bridge when initialization fails', async () => {
       vi.resetModules();
 
@@ -787,6 +947,20 @@ describe('Config Commands', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveProperty('version');
+    });
+
+    it('should announce the canonical ruflo config filename', async () => {
+      const initCmd = configCommand.subcommands?.find(c => c.name === 'init');
+      expect(initCmd).toBeDefined();
+
+      vi.mocked(output.writeln).mockClear();
+
+      const result = await initCmd!.action!(ctx);
+
+      expect(result.success).toBe(true);
+      const lines = vi.mocked(output.writeln).mock.calls.flat().map(String);
+      expect(lines.some((line) => line.includes('ruflo@claude-flow.config.json'))).toBe(true);
+      expect(lines).not.toContain('  Creating ./claude-flow.config.json...');
     });
 
     it('should initialize with V3 mode', async () => {
@@ -899,6 +1073,35 @@ describe('Config Commands', () => {
       const result = await importCmd!.action!(ctx);
 
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe('claims check', () => {
+    it('checks only canonical claims config paths', async () => {
+      vi.resetModules();
+
+      const existsSync = vi.fn(() => false);
+      const readFileSync = vi.fn();
+
+      vi.doMock('fs', () => ({
+        existsSync,
+        readFileSync,
+      }));
+
+      const { claimsCommand } = await import('../src/commands/claims.js');
+      const checkCmd = claimsCommand.subcommands?.find(c => c.name === 'check');
+      expect(checkCmd).toBeDefined();
+
+      ctx.flags = { claim: 'swarm:create', _: [] };
+      const result = await checkCmd!.action!(ctx);
+
+      expect(result.success).toBe(true);
+      expect(readFileSync).not.toHaveBeenCalled();
+
+      const checkedPaths = existsSync.mock.calls.map(([checkedPath]) => String(checkedPath));
+      expect(checkedPaths.some((checkedPath) => checkedPath.endsWith('/.claude/ruflo/claims.json'))).toBe(true);
+      expect(checkedPaths.some((checkedPath) => checkedPath.includes('claude-flow.claims.json'))).toBe(false);
+      expect(checkedPaths.some((checkedPath) => checkedPath.includes('.config/claude-flow/claims.json'))).toBe(false);
     });
   });
 });

@@ -353,7 +353,7 @@ function envVars(): string {
   return `## Environment Variables
 
 \`\`\`bash
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./ruflo@claude-flow.config.json
 CLAUDE_FLOW_LOG_LEVEL=info
 ANTHROPIC_API_KEY=sk-ant-...
 CLAUDE_FLOW_MEMORY_BACKEND=hybrid
@@ -365,7 +365,7 @@ function setupAndBoundary(): string {
   return `## Quick Setup
 
 \`\`\`bash
-claude mcp add claude-flow -- npx -y @claude-flow/cli@latest
+claude mcp add ruflo -- npx -y @claude-flow/cli@latest
 npx @claude-flow/cli@latest daemon start
 npx @claude-flow/cli@latest doctor --fix
 \`\`\`

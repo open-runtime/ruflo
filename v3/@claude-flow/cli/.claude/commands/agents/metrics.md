@@ -11,7 +11,7 @@ Display comprehensive performance metrics for agents including V3 performance ga
 ## Usage
 
 ```bash
-npx claude-flow agent metrics [agent-id] [options]
+ruflo agent metrics [agent-id] [options]
 ```
 
 ## Options
@@ -25,19 +25,19 @@ npx claude-flow agent metrics [agent-id] [options]
 
 ```bash
 # Overall metrics for last 24 hours
-npx claude-flow agent metrics
+ruflo agent metrics
 
 # Metrics for specific agent
-npx claude-flow agent metrics coder-lx7m9k2
+ruflo agent metrics coder-lx7m9k2
 
 # Last hour
-npx claude-flow agent metrics -p 1h
+ruflo agent metrics -p 1h
 
 # Last 7 days
-npx claude-flow agent metrics --period 7d
+ruflo agent metrics --period 7d
 
 # JSON output
-npx claude-flow agent metrics --format json
+ruflo agent metrics --format json
 ```
 
 ## Output
@@ -117,6 +117,6 @@ V3 Performance Gains
 
 ## Related Commands
 
-- `npx claude-flow agent status` - Individual agent metrics
-- `npx claude-flow performance benchmark` - Full performance suite
-- `npx claude-flow status` - System-wide status
+- `ruflo agent status` - Individual agent metrics
+- `ruflo performance benchmark` - Full performance suite
+- `ruflo status` - System-wide status

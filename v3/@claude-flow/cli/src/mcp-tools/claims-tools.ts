@@ -44,8 +44,9 @@ interface ClaimsStore {
 // File-based persistence
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join, resolve } from 'path';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
-const CLAIMS_DIR = '.claude-flow/claims';
+const CLAIMS_DIR = join(PROJECT_RUNTIME_DIR, 'claims');
 const CLAIMS_FILE = 'claims.json';
 
 function getClaimsPath(): string {

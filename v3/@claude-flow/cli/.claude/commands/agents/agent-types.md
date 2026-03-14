@@ -203,10 +203,10 @@ Complete guide to all 87 available agent types in Claude Flow V3.
 
 ```bash
 # List all agent types
-npx claude-flow agent spawn --help
+ruflo agent spawn --help
 
 # Spawn any agent
-npx claude-flow agent spawn -t <agent-type>
+ruflo agent spawn -t <agent-type>
 ```
 
 ## See Also

@@ -1087,7 +1087,7 @@ npx claude-flow swarm task --description "<task>" [options]
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `CLAUDE_FLOW_CONFIG` | Config file path | `.claude-flow/config.json` |
+| `CLAUDE_FLOW_CONFIG` | Config file path | `.claude/ruflo/ruflo@claude-flow.config.json` |
 | `CLAUDE_FLOW_LOG_LEVEL` | Log level | `info` |
 | `CLAUDE_FLOW_MEMORY_BACKEND` | Memory backend | `agentdb` |
 | `CLAUDE_FLOW_EMBEDDING_PROVIDER` | Embedding provider | `transformers` |

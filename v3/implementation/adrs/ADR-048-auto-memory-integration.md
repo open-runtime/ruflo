@@ -427,7 +427,7 @@ New MCP tools for auto memory operations:
 
 ## Configuration
 
-Add to `claude-flow.config.json`:
+Add to `ruflo@claude-flow.config.json`:
 
 ```json
 {

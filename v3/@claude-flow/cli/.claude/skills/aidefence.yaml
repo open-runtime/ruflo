@@ -154,7 +154,7 @@ hooks:
       require_security_agent: true  # Require security-architect in swarm
       validate_topology: true       # Validate topology security
 
-# Integration with claude-flow systems
+# Integration with ruflo systems
 integration:
   # AgentDB integration for shared threat patterns
   agentdb:

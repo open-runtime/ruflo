@@ -23,17 +23,17 @@ This skill consolidates all performance analysis capabilities:
 
 ### Basic Bottleneck Detection
 ```bash
-npx claude-flow bottleneck detect
+ruflo bottleneck detect
 ```
 
 ### Generate Performance Report
 ```bash
-npx claude-flow analysis performance-report --format html --include-metrics
+ruflo analysis performance-report --format html --include-metrics
 ```
 
 ### Analyze and Auto-Fix
 ```bash
-npx claude-flow bottleneck detect --fix --threshold 15
+ruflo bottleneck detect --fix --threshold 15
 ```
 
 ## Core Capabilities
@@ -42,7 +42,7 @@ npx claude-flow bottleneck detect --fix --threshold 15
 
 #### Command Syntax
 ```bash
-npx claude-flow bottleneck detect [options]
+ruflo bottleneck detect [options]
 ```
 
 #### Options
@@ -55,19 +55,19 @@ npx claude-flow bottleneck detect [options]
 #### Usage Examples
 ```bash
 # Basic detection for current swarm
-npx claude-flow bottleneck detect
+ruflo bottleneck detect
 
 # Analyze specific swarm over 24 hours
-npx claude-flow bottleneck detect --swarm-id swarm-123 -t 24h
+ruflo bottleneck detect --swarm-id swarm-123 -t 24h
 
 # Export detailed analysis
-npx claude-flow bottleneck detect -t 24h -e bottlenecks.json
+ruflo bottleneck detect -t 24h -e bottlenecks.json
 
 # Auto-fix detected issues
-npx claude-flow bottleneck detect --fix --threshold 15
+ruflo bottleneck detect --fix --threshold 15
 
 # Low threshold for sensitive detection
-npx claude-flow bottleneck detect --threshold 10 --export critical-issues.json
+ruflo bottleneck detect --threshold 10 --export critical-issues.json
 ```
 
 #### Metrics Analyzed
@@ -166,14 +166,14 @@ Automatic analysis during task execution:
 #### MCP Integration
 ```javascript
 // Check for bottlenecks in Claude Code
-mcp__claude-flow__bottleneck_detect({
+mcp__ruflo__bottleneck_detect({
   timeRange: "1h",
   threshold: 20,
   autoFix: false
 })
 
 // Get detailed task results with bottleneck analysis
-mcp__claude-flow__task_results({
+mcp__ruflo__task_results({
   taskId: "task-123",
   format: "detailed"
 })
@@ -217,7 +217,7 @@ mcp__claude-flow__task_results({
 
 #### Command Syntax
 ```bash
-npx claude-flow analysis performance-report [options]
+ruflo analysis performance-report [options]
 ```
 
 #### Options
@@ -263,26 +263,26 @@ npx claude-flow analysis performance-report [options]
 #### Usage Examples
 ```bash
 # Generate HTML report with all metrics
-npx claude-flow analysis performance-report --format html --include-metrics
+ruflo analysis performance-report --format html --include-metrics
 
 # Compare current swarm with previous
-npx claude-flow analysis performance-report --compare swarm-123 --format markdown
+ruflo analysis performance-report --compare swarm-123 --format markdown
 
 # Custom output with specific sections
-npx claude-flow analysis performance-report \
+ruflo analysis performance-report \
   --sections summary,metrics,recommendations \
   --output reports/perf-analysis.html \
   --format html
 
 # Weekly performance report
-npx claude-flow analysis performance-report \
+ruflo analysis performance-report \
   --time-range 7d \
   --include-metrics \
   --format markdown \
   --output docs/weekly-performance.md
 
 # JSON format for CI/CD integration
-npx claude-flow analysis performance-report \
+ruflo analysis performance-report \
   --format json \
   --output build/performance.json
 ```
@@ -371,11 +371,11 @@ Typical improvements after bottleneck resolution:
 ### Continuous Monitoring
 ```bash
 # Monitor performance in real-time
-npx claude-flow swarm monitor --interval 5
+ruflo swarm monitor --interval 5
 
 # Generate hourly reports
 while true; do
-  npx claude-flow analysis performance-report \
+  ruflo analysis performance-report \
     --format json \
     --output logs/perf-$(date +%Y%m%d-%H%M).json
   sleep 3600
@@ -395,12 +395,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run Performance Analysis
         run: |
-          npx claude-flow analysis performance-report \
+          ruflo analysis performance-report \
             --format json \
             --output performance.json
       - name: Check Performance Thresholds
         run: |
-          npx claude-flow bottleneck detect \
+          ruflo bottleneck detect \
             --threshold 15 \
             --export bottlenecks.json
       - name: Upload Reports
@@ -421,12 +421,12 @@ const fs = require('fs');
 async function analyzePerformance() {
   // Run bottleneck detection
   const bottlenecks = await runCommand(
-    'npx claude-flow bottleneck detect --format json'
+    'ruflo bottleneck detect --format json'
   );
 
   // Generate performance report
   const report = await runCommand(
-    'npx claude-flow analysis performance-report --format json'
+    'ruflo analysis performance-report --format json'
   );
 
   // Analyze results
@@ -500,37 +500,37 @@ analyzePerformance().catch(console.error);
 **High Memory Usage**
 ```bash
 # Analyze memory bottlenecks
-npx claude-flow bottleneck detect --threshold 10
+ruflo bottleneck detect --threshold 10
 
 # Check cache performance
-npx claude-flow cache manage --action stats
+ruflo cache manage --action stats
 
 # Review memory metrics
-npx claude-flow memory usage
+ruflo memory usage
 ```
 
 **Slow Task Execution**
 ```bash
 # Identify slow tasks
-npx claude-flow task status --detailed
+ruflo task status --detailed
 
 # Analyze coordination overhead
-npx claude-flow bottleneck detect --time-range 1h
+ruflo bottleneck detect --time-range 1h
 
 # Check agent utilization
-npx claude-flow agent metrics
+ruflo agent metrics
 ```
 
 **Poor Cache Performance**
 ```bash
 # Analyze cache hit rates
-npx claude-flow analysis performance-report --sections metrics
+ruflo analysis performance-report --sections metrics
 
 # Review cache strategy
-npx claude-flow cache manage --action analyze
+ruflo cache manage --action analyze
 
 # Enable cache warming
-npx claude-flow bottleneck detect --fix
+ruflo bottleneck detect --fix
 ```
 
 ## Integration with Other Skills
@@ -542,11 +542,11 @@ npx claude-flow bottleneck detect --fix
 
 ## Related Commands
 
-- `npx claude-flow swarm monitor` - Real-time monitoring
-- `npx claude-flow token usage` - Token optimization analysis
-- `npx claude-flow cache manage` - Cache optimization
-- `npx claude-flow agent metrics` - Agent performance metrics
-- `npx claude-flow task status` - Task execution analysis
+- `ruflo swarm monitor` - Real-time monitoring
+- `ruflo token usage` - Token optimization analysis
+- `ruflo cache manage` - Cache optimization
+- `ruflo agent metrics` - Agent performance metrics
+- `ruflo task status` - Task execution analysis
 
 ## See Also
 

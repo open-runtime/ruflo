@@ -52,7 +52,7 @@ COMMIT_MSG=$(git log -1 --pretty=%B)
 
 echo "📊 Recording commit metrics..."
 
-# Notify claude-flow of commit
+# Notify ruflo of commit
 npx @claude-flow/cli hooks notify \\
   --message "Commit: $COMMIT_MSG" \\
   --level info \\
@@ -75,7 +75,7 @@ export function generateSessionManager(): string {
 const fs = require('fs');
 const path = require('path');
 
-const SESSION_DIR = path.join(process.cwd(), '.claude-flow', 'sessions');
+const SESSION_DIR = path.join(process.cwd(), '.claude', 'ruflo', 'sessions');
 const SESSION_FILE = path.join(SESSION_DIR, 'current.json');
 
 const commands = {
@@ -282,7 +282,7 @@ export function generateMemoryHelper(): string {
 const fs = require('fs');
 const path = require('path');
 
-const MEMORY_DIR = path.join(process.cwd(), '.claude-flow', 'data');
+const MEMORY_DIR = path.join(process.cwd(), '.claude', 'ruflo', 'data');
 const MEMORY_FILE = path.join(MEMORY_DIR, 'memory.json');
 
 function loadMemory() {
@@ -613,11 +613,11 @@ export function generateIntelligenceStub(): string {
     "const path = require('path');",
     "const os = require('os');",
     '',
-    "const DATA_DIR = path.join(process.cwd(), '.claude-flow', 'data');",
+    "const DATA_DIR = path.join(process.cwd(), '.claude', 'ruflo', 'data');",
     "const STORE_PATH = path.join(DATA_DIR, 'auto-memory-store.json');",
     "const RANKED_PATH = path.join(DATA_DIR, 'ranked-context.json');",
     "const PENDING_PATH = path.join(DATA_DIR, 'pending-insights.jsonl');",
-    "const SESSION_DIR = path.join(process.cwd(), '.claude-flow', 'sessions');",
+    "const SESSION_DIR = path.join(process.cwd(), '.claude', 'ruflo', 'sessions');",
     "const SESSION_FILE = path.join(SESSION_DIR, 'current.json');",
     '',
     'function ensureDir(dir) {',
@@ -661,7 +661,7 @@ export function generateIntelligenceStub(): string {
     '  var entries = [];',
     '  var candidates = [',
     '    path.join(os.homedir(), ".claude", "projects"),',
-    '    path.join(process.cwd(), ".claude-flow", "memory"),',
+    '    path.join(process.cwd(), ".claude", "ruflo", "memory"),',
     '    path.join(process.cwd(), ".claude", "memory"),',
     '  ];',
     '  for (var i = 0; i < candidates.length; i++) {',
@@ -826,7 +826,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, '../..');
-const DATA_DIR = join(PROJECT_ROOT, '.claude-flow', 'data');
+const DATA_DIR = join(PROJECT_ROOT, '.claude', 'ruflo', 'data');
 const STORE_PATH = join(DATA_DIR, 'auto-memory-store.json');
 
 const DIM = '\\x1b[2m';
@@ -838,7 +838,7 @@ if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 
 async function loadMemoryPackage() {
   // Strategy 1: Use createRequire for CJS-style resolution (handles nested node_modules
-  // when installed as a transitive dependency via npx ruflo / npx claude-flow)
+  // when installed as a transitive dependency via npx ruflo / ruflo)
   try {
     const { createRequire } = await import('module');
     const require = createRequire(join(PROJECT_ROOT, 'package.json'));
@@ -929,7 +929,7 @@ param(
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
-$ClaudeFlowDir = Join-Path $PWD '.claude-flow'
+$ClaudeFlowDir = Join-Path (Join-Path $PWD '.claude') 'ruflo'
 $PidDir = Join-Path $ClaudeFlowDir 'pids'
 
 # Ensure directories exist
@@ -962,7 +962,7 @@ function Start-SwarmMonitor {
     Write-Host "Starting swarm monitor..." -ForegroundColor Cyan
     $process = Start-Process -FilePath 'node' -ArgumentList @(
         '-e',
-        'setInterval(() => { require("fs").writeFileSync(".claude-flow/metrics/swarm-activity.json", JSON.stringify({swarm:{active:true,agent_count:0},timestamp:Date.now()})) }, 5000)'
+        'setInterval(() => { require("fs").writeFileSync(".claude/ruflo/metrics/swarm-activity.json", JSON.stringify({swarm:{active:true,agent_count:0},timestamp:Date.now()})) }, 5000)'
     ) -PassThru -WindowStyle Hidden
 
     $process.Id | Out-File $pidFile
@@ -1053,7 +1053,7 @@ const homeDir = os.homedir();
 
 // Get data directory based on platform
 function getDataDir() {
-  const localDir = path.join(process.cwd(), '.claude-flow', 'sessions');
+  const localDir = path.join(process.cwd(), '.claude', 'ruflo', 'sessions');
   if (fs.existsSync(path.dirname(localDir))) {
     return localDir;
   }
@@ -1064,7 +1064,7 @@ function getDataDir() {
     case 'darwin':
       return path.join(homeDir, 'Library', 'Application Support', 'claude-flow', 'sessions');
     default:
-      return path.join(homeDir, '.claude-flow', 'sessions');
+      return path.join(homeDir, '.claude', 'ruflo', 'sessions');
   }
 }
 

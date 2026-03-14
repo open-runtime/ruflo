@@ -73,7 +73,7 @@ gh run view <run-id> --json jobs,conclusion | \
 
 ```bash
 # Usage example
-npx claude-flow@alpha github gh-coordinator \
+ruflo github gh-coordinator \
   "Coordinate multi-repo release across 5 repositories"
 ```
 
@@ -99,7 +99,7 @@ gh pr create --title "Feature: New capability" \
 
 ```bash
 # Create coordinated issue workflow
-npx claude-flow@alpha github issue-tracker \
+ruflo github issue-tracker \
   "Manage sprint issues with automated tracking"
 ```
 
@@ -111,7 +111,7 @@ npx claude-flow@alpha github issue-tracker \
 
 ```bash
 # Automated release management
-npx claude-flow@alpha github release-manager \
+ruflo github release-manager \
   "Create v2.0.0 release with changelog and deployment"
 ```
 
@@ -123,7 +123,7 @@ npx claude-flow@alpha github release-manager \
 
 ```bash
 # Optimize repository structure
-npx claude-flow@alpha github repo-architect \
+ruflo github repo-architect \
   "Restructure monorepo with optimal organization"
 ```
 
@@ -149,7 +149,7 @@ gh pr view 123 --json files | \
 
 ```bash
 # Orchestrate CI/CD pipeline
-npx claude-flow@alpha github ci-orchestrator \
+ruflo github ci-orchestrator \
   "Setup parallel test execution with smart caching"
 ```
 
@@ -537,19 +537,19 @@ run().catch(error => core.setFailed(error.message));
 #### Initialize GitHub Swarm
 ```javascript
 // Step 1: Initialize swarm coordination
-mcp__claude-flow__swarm_init {
+mcp__ruflo__swarm_init {
   topology: "hierarchical",
   maxAgents: 8
 }
 
 // Step 2: Spawn specialized agents
-mcp__claude-flow__agent_spawn { type: "coordinator", name: "GitHub Coordinator" }
-mcp__claude-flow__agent_spawn { type: "reviewer", name: "Code Reviewer" }
-mcp__claude-flow__agent_spawn { type: "tester", name: "QA Agent" }
-mcp__claude-flow__agent_spawn { type: "analyst", name: "Security Analyst" }
+mcp__ruflo__agent_spawn { type: "coordinator", name: "GitHub Coordinator" }
+mcp__ruflo__agent_spawn { type: "reviewer", name: "Code Reviewer" }
+mcp__ruflo__agent_spawn { type: "tester", name: "QA Agent" }
+mcp__ruflo__agent_spawn { type: "analyst", name: "Security Analyst" }
 
 // Step 3: Orchestrate GitHub workflow
-mcp__claude-flow__task_orchestrate {
+mcp__ruflo__task_orchestrate {
   task: "Complete PR review and merge workflow",
   strategy: "parallel",
   priority: "high"
@@ -559,17 +559,17 @@ mcp__claude-flow__task_orchestrate {
 #### GitHub Hooks Integration
 ```bash
 # Pre-task: Setup GitHub context
-npx claude-flow@alpha hooks pre-task \
+ruflo hooks pre-task \
   --description "PR review workflow" \
   --context "pr-123"
 
 # During task: Track progress
-npx claude-flow@alpha hooks notify \
+ruflo hooks notify \
   --message "Completed security scan" \
   --type "github-action"
 
 # Post-task: Export results
-npx claude-flow@alpha hooks post-task \
+ruflo hooks post-task \
   --task-id "pr-review-123" \
   --export-github-summary
 ```
@@ -917,7 +917,7 @@ jobs:
 #### Example 3: Multi-Repo Synchronization
 ```bash
 # Synchronize multiple repositories
-npx claude-flow@alpha github sync-coordinator \
+ruflo github sync-coordinator \
   "Synchronize version updates across:
    - github.com/org/repo-a
    - github.com/org/repo-b
@@ -1062,4 +1062,4 @@ echo "✅ GitHub workflow automation setup complete"
 
 **Skill Status**: ✅ Production Ready
 **Last Updated**: 2025-01-19
-**Maintainer**: claude-flow team
+**Maintainer**: ruflo team

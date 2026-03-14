@@ -1072,7 +1072,7 @@ export async function checkAndMigrateLegacy(options: {
     path.join(process.cwd(), 'memory.db'),
     path.join(process.cwd(), '.claude/memory.db'),
     path.join(process.cwd(), 'data/memory.db'),
-    path.join(process.cwd(), '.claude-flow/memory.db')
+    path.join(process.cwd(), '.claude', 'ruflo', 'memory.db'),
   ];
 
   for (const legacyPath of legacyPaths) {
@@ -2046,7 +2046,7 @@ export async function storeEntry(options: {
 
   try {
     if (!fs.existsSync(dbPath)) {
-      return { success: false, id: '', error: 'Database not initialized. Run: claude-flow memory init' };
+      return { success: false, id: '', error: 'Database not initialized. Run: ruflo memory init' };
     }
 
     // Ensure schema has all required columns (migration for older DBs)

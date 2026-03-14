@@ -7,9 +7,10 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import type { MCPTool } from './types.js';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
 // Storage paths
-const STORAGE_DIR = '.claude-flow';
+const STORAGE_DIR = PROJECT_RUNTIME_DIR;
 const SESSION_DIR = 'sessions';
 
 interface SessionRecord {

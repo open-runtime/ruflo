@@ -37,14 +37,11 @@ The CLI loads configuration in the following priority order:
 2. **Auto-discovery** - Searches for config files in:
    - Current working directory
    - Parent directory
-   - `~/.claude-flow/`
+   - `~/.claude/ruflo/`
 
 ### Supported Config Files
 
-- `claude-flow.config.json`
-- `claude-flow.config.js`
-- `claude-flow.json`
-- `.claude-flow.json`
+- `ruflo@claude-flow.config.json`
 
 ## Environment Variables
 

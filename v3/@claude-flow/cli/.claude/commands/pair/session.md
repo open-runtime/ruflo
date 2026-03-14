@@ -6,7 +6,7 @@ Complete guide to managing pair programming sessions.
 
 ### 1. Initialization
 ```bash
-claude-flow pair --start
+ruflo pair --start
 ```
 
 ### 2. Active Session
@@ -17,7 +17,7 @@ claude-flow pair --start
 
 ### 3. Completion
 ```bash
-claude-flow pair --end
+ruflo pair --end
 ```
 
 ## Session Commands
@@ -93,7 +93,7 @@ During an active session, use these commands:
 Check current session status:
 
 ```bash
-claude-flow pair --status
+ruflo pair --status
 ```
 
 Output:
@@ -127,7 +127,7 @@ Next Switch: in 3 minutes
 View past sessions:
 
 ```bash
-claude-flow pair --history
+ruflo pair --history
 ```
 
 Output:
@@ -194,17 +194,17 @@ Rollbacks: 1
 
 ### Save Session
 ```bash
-claude-flow pair --save [--name <name>]
+ruflo pair --save [--name <name>]
 ```
 
 ### Load Session
 ```bash
-claude-flow pair --load <session-id>
+ruflo pair --load <session-id>
 ```
 
 ### Export Session
 ```bash
-claude-flow pair --export <session-id> [--format json|md]
+ruflo pair --export <session-id> [--format json|md]
 ```
 
 ## Background Sessions
@@ -213,17 +213,17 @@ Run pair programming in background:
 
 ### Start Background Session
 ```bash
-claude-flow pair --start --background
+ruflo pair --start --background
 ```
 
 ### Monitor Background Session
 ```bash
-claude-flow pair --monitor
+ruflo pair --monitor
 ```
 
 ### Attach to Background Session
 ```bash
-claude-flow pair --attach <session-id>
+ruflo pair --attach <session-id>
 ```
 
 ## Session Configuration
@@ -245,7 +245,7 @@ claude-flow pair --attach <session-id>
 
 ### Per-Session Config
 ```bash
-claude-flow pair --start \
+ruflo pair --start \
   --config custom-config.json
 ```
 
@@ -253,7 +253,7 @@ claude-flow pair --start \
 
 ### Refactoring Template
 ```bash
-claude-flow pair --template refactor
+ruflo pair --template refactor
 ```
 - Focus: Code improvement
 - Verification: High (0.98)
@@ -262,7 +262,7 @@ claude-flow pair --template refactor
 
 ### Feature Template
 ```bash
-claude-flow pair --template feature
+ruflo pair --template feature
 ```
 - Focus: Implementation
 - Verification: Standard (0.95)
@@ -271,7 +271,7 @@ claude-flow pair --template feature
 
 ### Debug Template
 ```bash
-claude-flow pair --template debug
+ruflo pair --template debug
 ```
 - Focus: Problem solving
 - Verification: Moderate (0.90)
@@ -280,7 +280,7 @@ claude-flow pair --template debug
 
 ### Learning Template
 ```bash
-claude-flow pair --template learn
+ruflo pair --template learn
 ```
 - Mode: Mentor
 - Pace: Slow
@@ -292,7 +292,7 @@ claude-flow pair --template learn
 Generate session report:
 
 ```bash
-claude-flow pair --report <session-id>
+ruflo pair --report <session-id>
 ```
 
 Report includes:
@@ -308,17 +308,17 @@ Report includes:
 
 ### List Active Sessions
 ```bash
-claude-flow pair --list
+ruflo pair --list
 ```
 
 ### Switch Between Sessions
 ```bash
-claude-flow pair --switch <session-id>
+ruflo pair --switch <session-id>
 ```
 
 ### Merge Sessions
 ```bash
-claude-flow pair --merge <session-1> <session-2>
+ruflo pair --merge <session-1> <session-2>
 ```
 
 ## Session Recovery
@@ -328,49 +328,49 @@ Sessions auto-save every 5 minutes with recovery points.
 
 ### Manual Recovery
 ```bash
-claude-flow pair --recover [--point <timestamp>]
+ruflo pair --recover [--point <timestamp>]
 ```
 
 ### Crash Recovery
 ```bash
-claude-flow pair --crash-recovery
+ruflo pair --crash-recovery
 ```
 
 ## Session Sharing
 
 ### Share with Team
 ```bash
-claude-flow pair --share <session-id> \
+ruflo pair --share <session-id> \
   --team <team-id>
 ```
 
 ### Export for Review
 ```bash
-claude-flow pair --export-review <session-id>
+ruflo pair --export-review <session-id>
 ```
 
 ### Create Learning Material
 ```bash
-claude-flow pair --create-tutorial <session-id>
+ruflo pair --create-tutorial <session-id>
 ```
 
 ## Advanced Features
 
 ### Session Recording
 ```bash
-claude-flow pair --start --record
+ruflo pair --start --record
 ```
 Records all interactions for playback.
 
 ### Session Replay
 ```bash
-claude-flow pair --replay <session-id>
+ruflo pair --replay <session-id>
 ```
 Replay recorded session for learning.
 
 ### Session Analytics
 ```bash
-claude-flow pair --analytics <session-id>
+ruflo pair --analytics <session-id>
 ```
 Deep analysis of session patterns.
 

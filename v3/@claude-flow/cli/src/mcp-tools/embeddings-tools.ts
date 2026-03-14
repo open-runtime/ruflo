@@ -8,9 +8,10 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join, resolve } from 'path';
 import type { MCPTool } from './types.js';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
 // Configuration paths
-const CONFIG_DIR = '.claude-flow';
+const CONFIG_DIR = PROJECT_RUNTIME_DIR;
 const EMBEDDINGS_CONFIG = 'embeddings.json';
 const MODELS_DIR = 'models';
 

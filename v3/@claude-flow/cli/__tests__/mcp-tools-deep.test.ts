@@ -12,6 +12,7 @@
  */
 
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import * as fs from 'fs';
 
 // ============================================================================
 // Mock setup - must be before imports
@@ -537,9 +538,12 @@ describe('MCP Tools Deep Test Suite', () => {
     });
 
     it('config_set stores a value', async () => {
+      (fs.writeFileSync as any).mockClear();
       const tool = configTools.find(t => t.name === 'config_set')!;
       const result: any = await tool.handler({ key: 'test.key', value: 'test-value' });
       expect(result.success).toBe(true);
+      const [writtenPath] = (fs.writeFileSync as any).mock.calls.at(-1);
+      expect(writtenPath).toContain('.claude/ruflo/config.json');
     });
 
     it('config_list returns configurations', async () => {
@@ -640,6 +644,7 @@ describe('MCP Tools Deep Test Suite', () => {
       const result: any = await tool.handler({ name: 'Test Session' });
       expect(result.sessionId).toBeDefined();
       expect(result.name).toBe('Test Session');
+      expect(result.path).toContain('.claude/ruflo/sessions/');
     });
   });
 
@@ -678,10 +683,13 @@ describe('MCP Tools Deep Test Suite', () => {
     });
 
     it('workflow_create creates a workflow', async () => {
+      (fs.writeFileSync as any).mockClear();
       const tool = workflowTools.find(t => t.name === 'workflow_create')!;
       const result: any = await tool.handler({ name: 'test-wf', description: 'Test workflow' });
       expect(result.workflowId).toBeDefined();
       expect(result.name).toBe('test-wf');
+      const [writtenPath] = (fs.writeFileSync as any).mock.calls.at(-1);
+      expect(writtenPath).toContain('.claude/ruflo/workflows/store.json');
     });
   });
 
@@ -1053,6 +1061,16 @@ describe('MCP Tools Deep Test Suite', () => {
       expect(result).toBeDefined();
     });
 
+    it('progress_sync persists metrics under .claude/ruflo', async () => {
+      (fs.writeFileSync as any).mockClear();
+      const tool = progressTools.find(t => t.name === 'progress_sync')!;
+      expect(tool).toBeDefined();
+      const result: any = await tool.handler({});
+      expect(result.persisted).toBe(true);
+      const [writtenPath] = (fs.writeFileSync as any).mock.calls.at(-1);
+      expect(writtenPath).toContain('.claude/ruflo/metrics/v3-progress.json');
+    });
+
     it('progress_summary returns summary', async () => {
       const tool = progressTools.find(t => t.name === 'progress_summary')!;
       expect(tool).toBeDefined();
@@ -1072,6 +1090,8 @@ describe('MCP Tools Deep Test Suite', () => {
       const tool = embeddingsTools.find(t => t.name === 'embeddings_init')!;
       const result: any = await tool.handler({ force: true });
       expect(result.success).toBe(true);
+      expect(result.paths.config).toContain('.claude/ruflo/');
+      expect(result.paths.models).toContain('.claude/ruflo/');
     });
   });
 
@@ -1084,6 +1104,13 @@ describe('MCP Tools Deep Test Suite', () => {
       expect(tool).toBeDefined();
       const result: any = await tool.handler({});
       expect(result.hooks).toBeDefined();
+    });
+
+    it('hooks_session-end persists sessions under .claude/ruflo', async () => {
+      const tool = hooksTools.find(t => t.name === 'hooks_session-end')!;
+      expect(tool).toBeDefined();
+      const result: any = await tool.handler({ sessionId: 'session-123', saveState: true });
+      expect(result.statePath).toContain('.claude/ruflo/sessions/');
     });
 
     it('hooks_metrics returns metrics', async () => {

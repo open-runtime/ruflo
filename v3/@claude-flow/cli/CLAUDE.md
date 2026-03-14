@@ -568,7 +568,7 @@ Bash("npx @claude-flow/cli@latest neural patterns --list")
 
 ```bash
 # Configuration
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
+CLAUDE_FLOW_CONFIG=./ruflo@claude-flow.config.json
 CLAUDE_FLOW_LOG_LEVEL=info
 
 # Provider API Keys
@@ -679,7 +679,7 @@ npx @claude-flow/cli@latest memory init --force --verbose
 
 For a comprehensive overview of all Claude Flow V3 features, agents, commands, and integrations, see:
 
-**`.claude-flow/CAPABILITIES.md`** - Complete reference generated during init
+**`.claude/ruflo/CAPABILITIES.md`** - Complete reference generated during init
 
 This includes:
 - All 60+ agent types with routing recommendations

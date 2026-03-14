@@ -6,6 +6,7 @@
 import { mkdirSync, writeFileSync, existsSync, readFileSync, statSync } from 'fs';
 import { join, resolve } from 'path';
 import type { MCPTool } from './types.js';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
 // Real vector search functions - lazy loaded to avoid circular imports
 let searchEntriesFn: ((options: {
@@ -360,7 +361,7 @@ interface MemoryStore {
   version: string;
 }
 
-const MEMORY_DIR = '.claude-flow/memory';
+const MEMORY_DIR = join(PROJECT_RUNTIME_DIR, 'memory');
 const MEMORY_FILE = 'store.json';
 
 function getMemoryPath(): string {
@@ -1519,7 +1520,7 @@ export const hooksSessionEnd: MCPTool = {
     return {
       sessionId,
       duration: 3600000, // 1 hour in ms
-      statePath: saveState ? `.claude/sessions/${sessionId}.json` : undefined,
+      statePath: saveState ? `.claude/ruflo/sessions/${sessionId}.json` : undefined,
       daemon: { stopped: daemonStopped },
       sessionPersistence: sessionPersistence || { controller: 'none', persisted: false },
       summary: {
@@ -2177,7 +2178,7 @@ export const hooksPatternSearch: MCPTool = {
       results: [],
       searchTimeMs: 0,
       backend: 'unavailable',
-      note: 'Real vector search not available. Initialize memory database with: claude-flow memory init',
+      note: 'Real vector search not available. Initialize memory database with: ruflo memory init',
     };
   },
 };

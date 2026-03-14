@@ -5,8 +5,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LEARNING_SERVICE="$SCRIPT_DIR/learning-service.mjs"
-LEARNING_DIR="$PROJECT_ROOT/.claude-flow/learning"
-METRICS_DIR="$PROJECT_ROOT/.claude-flow/metrics"
+LEARNING_DIR="$PROJECT_ROOT/.claude/ruflo/learning"
+METRICS_DIR="$PROJECT_ROOT/.claude/ruflo/metrics"
 
 # Ensure directories exist
 mkdir -p "$LEARNING_DIR" "$METRICS_DIR"

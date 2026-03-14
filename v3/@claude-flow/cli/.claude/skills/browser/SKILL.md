@@ -1,6 +1,6 @@
 ---
 name: browser
-description: Web browser automation with AI-optimized snapshots for claude-flow agents
+description: Web browser automation with AI-optimized snapshots for ruflo agents
 version: 1.0.0
 triggers:
   - /browser

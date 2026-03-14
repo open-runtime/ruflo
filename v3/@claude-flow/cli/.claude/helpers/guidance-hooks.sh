@@ -4,7 +4,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-CACHE_DIR="$PROJECT_ROOT/.claude-flow"
+CACHE_DIR="$PROJECT_ROOT/.claude/ruflo"
 
 # Ensure cache directory exists
 mkdir -p "$CACHE_DIR" 2>/dev/null || true
@@ -68,7 +68,7 @@ case "$COMMAND" in
         cat << 'EOF'
 ## V3 Development Context
 
-**Architecture**: Domain-Driven Design with 15 @claude-flow modules
+**Architecture**: Domain-Driven Design with 15 @ruflo modules
 **Priority**: Security-first (CVE-1, CVE-2, CVE-3 remediation)
 **Performance Targets**:
 - HNSW search: 150x-12,500x faster

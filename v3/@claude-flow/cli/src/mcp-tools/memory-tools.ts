@@ -13,6 +13,7 @@
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import type { MCPTool } from './types.js';
+import { PROJECT_RUNTIME_DIR } from '../utils/runtime-paths.js';
 
 // Legacy JSON store interface (for migration)
 interface LegacyMemoryEntry {
@@ -30,7 +31,7 @@ interface LegacyMemoryStore {
 }
 
 // Paths
-const MEMORY_DIR = '.claude-flow/memory';
+const MEMORY_DIR = join(PROJECT_RUNTIME_DIR, 'memory');
 const LEGACY_MEMORY_FILE = 'store.json';
 const MIGRATION_MARKER = '.migrated-to-sqlite';
 

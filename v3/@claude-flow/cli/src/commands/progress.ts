@@ -9,6 +9,7 @@
 import type { Command, CommandContext, CommandResult } from '../types.js';
 import { output } from '../output.js';
 import { callMCPTool, MCPClientError } from '../mcp-client.js';
+import { displayProjectRuntimePath } from '../utils/runtime-paths.js';
 
 function progressBar(percent: number, width: number = 20): string {
   const filled = Math.round((percent / 100) * width);
@@ -121,7 +122,7 @@ const syncCommand: Command = {
 
       output.writeln();
       output.printSuccess(`Progress synced: ${result.progress}%`);
-      output.writeln(output.dim(`  Persisted to .claude-flow/metrics/v3-progress.json`));
+      output.writeln(output.dim(`  Persisted to ${displayProjectRuntimePath('metrics', 'v3-progress.json')}`));
       output.writeln(output.dim(`  Last updated: ${result.lastUpdated}`));
 
       return { success: true, data: result };
@@ -259,23 +260,23 @@ export const progressCommand: Command = {
   ],
   examples: [
     {
-      command: 'claude-flow progress',
+      command: 'ruflo progress',
       description: 'Check current progress',
     },
     {
-      command: 'claude-flow progress --detailed',
+      command: 'ruflo progress --detailed',
       description: 'Show detailed breakdown',
     },
     {
-      command: 'claude-flow progress sync',
+      command: 'ruflo progress sync',
       description: 'Sync and persist progress',
     },
     {
-      command: 'claude-flow progress watch',
+      command: 'ruflo progress watch',
       description: 'Watch for changes',
     },
     {
-      command: 'claude-flow progress --json',
+      command: 'ruflo progress --json',
       description: 'Output as JSON',
     },
   ],

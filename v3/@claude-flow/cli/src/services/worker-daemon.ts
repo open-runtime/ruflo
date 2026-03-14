@@ -126,12 +126,12 @@ export class WorkerDaemon extends EventEmitter {
     super();
     this.projectRoot = projectRoot;
 
-    const claudeFlowDir = join(projectRoot, '.claude-flow');
+    const projectRuntimeDir = join(projectRoot, '.claude', 'ruflo');
 
     this.config = {
       autoStart: config?.autoStart ?? false, // P1 fix: Default to false for explicit consent
-      logDir: config?.logDir ?? join(claudeFlowDir, 'logs'),
-      stateFile: config?.stateFile ?? join(claudeFlowDir, 'daemon-state.json'),
+      logDir: config?.logDir ?? join(projectRuntimeDir, 'logs'),
+      stateFile: config?.stateFile ?? join(projectRuntimeDir, 'daemon-state.json'),
       maxConcurrent: config?.maxConcurrent ?? 2, // P0 fix: Limit concurrent workers
       workerTimeoutMs: config?.workerTimeoutMs ?? DEFAULT_WORKER_TIMEOUT_MS,
       resourceThresholds: config?.resourceThresholds ?? {
@@ -145,8 +145,8 @@ export class WorkerDaemon extends EventEmitter {
     this.setupShutdownHandlers();
 
     // Ensure directories exist
-    if (!existsSync(claudeFlowDir)) {
-      mkdirSync(claudeFlowDir, { recursive: true });
+    if (!existsSync(projectRuntimeDir)) {
+      mkdirSync(projectRuntimeDir, { recursive: true });
     }
     if (!existsSync(this.config.logDir)) {
       mkdirSync(this.config.logDir, { recursive: true });
@@ -593,8 +593,8 @@ export class WorkerDaemon extends EventEmitter {
 
   private async runMapWorker(): Promise<unknown> {
     // Scan project structure and update metrics
-    const metricsFile = join(this.projectRoot, '.claude-flow', 'metrics', 'codebase-map.json');
-    const metricsDir = join(this.projectRoot, '.claude-flow', 'metrics');
+    const metricsFile = join(this.projectRoot, '.claude', 'ruflo', 'metrics', 'codebase-map.json');
+    const metricsDir = join(this.projectRoot, '.claude', 'ruflo', 'metrics');
 
     if (!existsSync(metricsDir)) {
       mkdirSync(metricsDir, { recursive: true });
@@ -607,7 +607,7 @@ export class WorkerDaemon extends EventEmitter {
         hasPackageJson: existsSync(join(this.projectRoot, 'package.json')),
         hasTsConfig: existsSync(join(this.projectRoot, 'tsconfig.json')),
         hasClaudeConfig: existsSync(join(this.projectRoot, '.claude')),
-        hasClaudeFlow: existsSync(join(this.projectRoot, '.claude-flow')),
+        hasProjectRuntime: existsSync(join(this.projectRoot, '.claude', 'ruflo')),
       },
       scannedAt: Date.now(),
     };
@@ -621,8 +621,8 @@ export class WorkerDaemon extends EventEmitter {
    */
   private async runAuditWorkerLocal(): Promise<unknown> {
     // Basic security checks
-    const auditFile = join(this.projectRoot, '.claude-flow', 'metrics', 'security-audit.json');
-    const metricsDir = join(this.projectRoot, '.claude-flow', 'metrics');
+    const auditFile = join(this.projectRoot, '.claude', 'ruflo', 'metrics', 'security-audit.json');
+    const metricsDir = join(this.projectRoot, '.claude', 'ruflo', 'metrics');
 
     if (!existsSync(metricsDir)) {
       mkdirSync(metricsDir, { recursive: true });
@@ -650,8 +650,8 @@ export class WorkerDaemon extends EventEmitter {
    */
   private async runOptimizeWorkerLocal(): Promise<unknown> {
     // Update performance metrics
-    const optimizeFile = join(this.projectRoot, '.claude-flow', 'metrics', 'performance.json');
-    const metricsDir = join(this.projectRoot, '.claude-flow', 'metrics');
+    const optimizeFile = join(this.projectRoot, '.claude', 'ruflo', 'metrics', 'performance.json');
+    const metricsDir = join(this.projectRoot, '.claude', 'ruflo', 'metrics');
 
     if (!existsSync(metricsDir)) {
       mkdirSync(metricsDir, { recursive: true });
@@ -675,8 +675,8 @@ export class WorkerDaemon extends EventEmitter {
 
   private async runConsolidateWorker(): Promise<unknown> {
     // Memory consolidation - clean up old patterns
-    const consolidateFile = join(this.projectRoot, '.claude-flow', 'metrics', 'consolidation.json');
-    const metricsDir = join(this.projectRoot, '.claude-flow', 'metrics');
+    const consolidateFile = join(this.projectRoot, '.claude', 'ruflo', 'metrics', 'consolidation.json');
+    const metricsDir = join(this.projectRoot, '.claude', 'ruflo', 'metrics');
 
     if (!existsSync(metricsDir)) {
       mkdirSync(metricsDir, { recursive: true });
@@ -698,8 +698,8 @@ export class WorkerDaemon extends EventEmitter {
    */
   private async runTestGapsWorkerLocal(): Promise<unknown> {
     // Check for test coverage gaps
-    const testGapsFile = join(this.projectRoot, '.claude-flow', 'metrics', 'test-gaps.json');
-    const metricsDir = join(this.projectRoot, '.claude-flow', 'metrics');
+    const testGapsFile = join(this.projectRoot, '.claude', 'ruflo', 'metrics', 'test-gaps.json');
+    const metricsDir = join(this.projectRoot, '.claude', 'ruflo', 'metrics');
 
     if (!existsSync(metricsDir)) {
       mkdirSync(metricsDir, { recursive: true });
@@ -787,8 +787,8 @@ export class WorkerDaemon extends EventEmitter {
    * Local benchmark worker
    */
   private async runBenchmarkWorkerLocal(): Promise<unknown> {
-    const benchmarkFile = join(this.projectRoot, '.claude-flow', 'metrics', 'benchmark.json');
-    const metricsDir = join(this.projectRoot, '.claude-flow', 'metrics');
+    const benchmarkFile = join(this.projectRoot, '.claude', 'ruflo', 'metrics', 'benchmark.json');
+    const metricsDir = join(this.projectRoot, '.claude', 'ruflo', 'metrics');
 
     if (!existsSync(metricsDir)) {
       mkdirSync(metricsDir, { recursive: true });

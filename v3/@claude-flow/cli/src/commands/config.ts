@@ -7,6 +7,7 @@ import type { Command, CommandContext, CommandResult } from '../types.js';
 import { output } from '../output.js';
 import { select, confirm, input } from '../prompt.js';
 import { callMCPTool, MCPClientError } from '../mcp-client.js';
+import { displayProjectConfigPath, displayProjectRuntimePath } from '../utils/runtime-paths.js';
 
 // Init configuration
 const initCommand: Command = {
@@ -76,8 +77,8 @@ const initCommand: Command = {
       ]
     };
 
-    output.writeln(output.dim('  Creating claude-flow.config.json...'));
-    output.writeln(output.dim('  Creating .claude-flow/ directory...'));
+    output.writeln(output.dim(`  Creating ${displayProjectConfigPath()}...`));
+    output.writeln(output.dim(`  Creating ${displayProjectRuntimePath()} directory...`));
 
     if (sparc) {
       output.writeln(output.dim('  Initializing SPARC methodology...'));
@@ -109,7 +110,7 @@ const initCommand: Command = {
 
     output.writeln();
     output.printSuccess('Configuration initialized');
-    output.writeln(output.dim('  Config file: ./claude-flow.config.json'));
+    output.writeln(output.dim(`  RuFlo config: ${displayProjectConfigPath()}`));
 
     return { success: true, data: config };
   }
@@ -128,8 +129,8 @@ const getCommand: Command = {
     }
   ],
   examples: [
-    { command: 'claude-flow config get swarm.topology', description: 'Get swarm topology' },
-    { command: 'claude-flow config get -k memory.backend', description: 'Get memory backend' }
+    { command: 'ruflo config get swarm.topology', description: 'Get swarm topology' },
+    { command: 'ruflo config get -k memory.backend', description: 'Get memory backend' }
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     const key = ctx.flags.key as string || ctx.args[0];
@@ -208,8 +209,8 @@ const setCommand: Command = {
     }
   ],
   examples: [
-    { command: 'claude-flow config set swarm.maxAgents 20', description: 'Set max agents' },
-    { command: 'claude-flow config set -k memory.backend -v agentdb', description: 'Set memory backend' }
+    { command: 'ruflo config set swarm.maxAgents 20', description: 'Set max agents' },
+    { command: 'ruflo config set -k memory.backend -v agentdb', description: 'Set memory backend' }
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     const key = ctx.flags.key as string || ctx.args[0];
@@ -355,7 +356,7 @@ const exportCommand: Command = {
     }
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
-    const outputPath = ctx.flags.output as string || './claude-flow.config.export.json';
+    const outputPath = ctx.flags.output as string || './ruflo@claude-flow.config.export.json';
 
     const config = {
       version: '3.0.0',
@@ -424,15 +425,15 @@ export const configCommand: Command = {
   subcommands: [initCommand, getCommand, setCommand, providersCommand, resetCommand, exportCommand, importCommand],
   options: [],
   examples: [
-    { command: 'claude-flow config init --v3', description: 'Initialize V3 config' },
-    { command: 'claude-flow config get swarm.topology', description: 'Get config value' },
-    { command: 'claude-flow config set swarm.maxAgents 20', description: 'Set config value' }
+    { command: 'ruflo config init --v3', description: 'Initialize V3 config' },
+    { command: 'ruflo config get swarm.topology', description: 'Get config value' },
+    { command: 'ruflo config set swarm.maxAgents 20', description: 'Set config value' }
   ],
   action: async (ctx: CommandContext): Promise<CommandResult> => {
     output.writeln();
     output.writeln(output.bold('Configuration Management'));
     output.writeln();
-    output.writeln('Usage: claude-flow config <subcommand> [options]');
+    output.writeln('Usage: ruflo config <subcommand> [options]');
     output.writeln();
     output.writeln('Subcommands:');
     output.printList([

@@ -289,7 +289,7 @@ setx CLAUDE_FLOW_MODE "production"
 setx CLAUDE_FLOW_MEMORY_BACKEND "agentdb"
 
 # Update config path
-$env:CLAUDE_FLOW_CONFIG = "$env:APPDATA\claude-flow\config.json"
+$env:CLAUDE_FLOW_CONFIG = "$env:APPDATA\ruflo\ruflo@claude-flow.config.json"
 ```
 
 #### macOS/Linux Configuration
@@ -300,7 +300,7 @@ export CLAUDE_FLOW_MODE=production
 export CLAUDE_FLOW_MEMORY_BACKEND=agentdb
 
 # Update config path
-export CLAUDE_FLOW_CONFIG="$HOME/.claude-flow/config.json"
+export CLAUDE_FLOW_CONFIG="$HOME/.claude/ruflo/ruflo@claude-flow.config.json"
 
 # Add to ~/.bashrc or ~/.zshrc for persistence
 ```
@@ -788,7 +788,7 @@ CLAUDE_FLOW_COORDINATOR=hierarchical
 # Core
 CLAUDE_FLOW_VERSION=3
 CLAUDE_FLOW_MODE=production
-CLAUDE_FLOW_CONFIG=~/.claude-flow/config.json
+CLAUDE_FLOW_CONFIG=~/.claude/ruflo/ruflo@claude-flow.config.json
 
 # Memory
 CLAUDE_FLOW_MEMORY_BACKEND=agentdb
@@ -805,11 +805,11 @@ CLAUDE_FLOW_SONA_LEARNING=true
 
 # Platform-specific (Windows)
 APPDATA=C:\Users\YourName\AppData\Roaming
-CLAUDE_FLOW_CONFIG=%APPDATA%\claude-flow\config.json
+CLAUDE_FLOW_CONFIG=%APPDATA%\ruflo\ruflo@claude-flow.config.json
 
 # Platform-specific (macOS/Linux)
 HOME=/home/yourname
-CLAUDE_FLOW_CONFIG=$HOME/.claude-flow/config.json
+CLAUDE_FLOW_CONFIG=$HOME/.claude/ruflo/ruflo@claude-flow.config.json
 ```
 
 ---
