@@ -14,6 +14,7 @@
 
 import { readFile, readdir, stat } from 'fs/promises';
 import { join, relative, extname, dirname, basename } from 'path';
+import { DEFAULT_REPO_SCAN_EXCLUDE_DIRS, shouldExcludeRepoPath } from '../utils/repo-scan-excludes.js';
 
 // ============================================================================
 // Caching for Performance
@@ -345,21 +346,14 @@ export async function buildDependencyGraph(
   const edges: GraphEdge[] = [];
 
   const include = options.include || ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'];
-  const exclude = options.exclude || ['node_modules', 'dist', 'build', '.git', '__tests__', '*.test.*', '*.spec.*'];
+  const exclude = options.exclude || [...DEFAULT_REPO_SCAN_EXCLUDE_DIRS, '__tests__', '*.test.*', '*.spec.*'];
   const maxDepth = options.maxDepth ?? 10;
 
   /**
    * Check if path should be excluded
    */
   function shouldExclude(path: string): boolean {
-    const name = basename(path);
-    return exclude.some(pattern => {
-      if (pattern.includes('*')) {
-        const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
-        return regex.test(name);
-      }
-      return name === pattern || path.includes(`/${pattern}/`);
-    });
+    return shouldExcludeRepoPath(path, exclude);
   }
 
   /**

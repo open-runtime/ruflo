@@ -19,12 +19,17 @@
 
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { fileURLToPath, pathToFileURL } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ===== Lazy singleton =====
 
 let registryPromise: Promise<any> | null = null;
 let registryInstance: any = null;
 let bridgeAvailable: boolean | null = null;
+let reasoningBankModulesPromise: Promise<{ embeddings: any; config: any } | null> | null = null;
 
 /**
  * Resolve database path with path traversal protection.
@@ -49,6 +54,70 @@ function getDbPath(customPath?: string): string {
  */
 function generateId(prefix: string): string {
   return `${prefix}_${Date.now()}_${crypto.randomBytes(8).toString('hex')}`;
+}
+
+/**
+ * Load the shared ReasoningBank embedding/config modules via absolute file paths.
+ * This keeps CLI memory store/search aligned with the patched embedding runtime.
+ */
+async function getReasoningBankModules(): Promise<{ embeddings: any; config: any } | null> {
+  if (reasoningBankModulesPromise) {
+    return reasoningBankModulesPromise;
+  }
+
+  const utilsDir = path.resolve(__dirname, '../../../node_modules/agentic-flow/dist/reasoningbank/utils');
+  const embeddingsUrl = pathToFileURL(path.join(utilsDir, 'embeddings.js')).href;
+  const configUrl = pathToFileURL(path.join(utilsDir, 'config.js')).href;
+
+  reasoningBankModulesPromise = Promise.all([
+    import(embeddingsUrl).catch(() => null),
+    import(configUrl).catch(() => null),
+  ])
+    .then(([embeddings, config]) => embeddings?.computeEmbedding ? { embeddings, config } : null)
+    .catch(() => null);
+
+  return reasoningBankModulesPromise;
+}
+
+function getReasoningBankEmbeddingSettings(
+  reasoningBankModules: { embeddings: any; config: any } | null,
+): { provider: string; model: string; dimensions: number } {
+  const config = reasoningBankModules?.config?.loadConfig?.();
+  const provider = config?.embeddings?.provider ?? 'onnx';
+  const model = config?.embeddings?.model ?? (provider === 'voyage' ? 'voyage-code-3' : 'Xenova/all-MiniLM-L6-v2');
+  const dimensions = reasoningBankModules?.embeddings?.getEmbeddingDimensions?.()
+    ?? config?.embeddings?.dimensions
+    ?? config?.embeddings?.dims
+    ?? 384;
+
+  return { provider, model, dimensions };
+}
+
+async function getConfiguredMemoryDimensions(): Promise<number> {
+  const reasoningBankModules = await getReasoningBankModules();
+  return getReasoningBankEmbeddingSettings(reasoningBankModules).dimensions;
+}
+
+async function generateReasoningBankEmbedding(
+  text: string,
+  inputType: 'document' | 'query' = 'document',
+): Promise<{ embedding: number[]; dimensions: number; model: string } | null> {
+  const reasoningBankModules = await getReasoningBankModules();
+  if (!reasoningBankModules?.embeddings?.computeEmbedding) {
+    return null;
+  }
+
+  try {
+    const { model, dimensions } = getReasoningBankEmbeddingSettings(reasoningBankModules);
+    const embedding = await reasoningBankModules.embeddings.computeEmbedding(text, inputType);
+    return {
+      embedding: Array.from(embedding),
+      dimensions: embedding.length || dimensions,
+      model,
+    };
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -79,9 +148,10 @@ async function getRegistry(dbPath?: string): Promise<any | null> {
         };
 
         try {
+          const dimension = await getConfiguredMemoryDimensions();
           await registry.initialize({
             dbPath: dbPath || getDbPath(),
-            dimension: 384,
+            dimension,
             controllers: {
               reasoningBank: true,
               learningBridge: false,
@@ -353,13 +423,20 @@ export async function bridgeStoreEntry(options: {
 
     if (options.generateEmbeddingFlag !== false && value.length > 0) {
       try {
-        const embedder = ctx.agentdb.embedder;
-        if (embedder) {
-          const emb = await embedder.embed(value);
-          if (emb) {
-            embeddingJson = JSON.stringify(Array.from(emb));
-            dimensions = emb.length;
-            model = 'Xenova/all-MiniLM-L6-v2';
+        const embResult = await generateReasoningBankEmbedding(value, 'document');
+        if (embResult) {
+          embeddingJson = JSON.stringify(embResult.embedding);
+          dimensions = embResult.dimensions;
+          model = embResult.model;
+        } else {
+          const embedder = ctx.agentdb.embedder;
+          if (embedder) {
+            const emb = await embedder.embed(value);
+            if (emb) {
+              embeddingJson = JSON.stringify(Array.from(emb));
+              dimensions = emb.length;
+              model = 'Xenova/all-MiniLM-L6-v2';
+            }
           }
         }
       } catch {
@@ -450,10 +527,15 @@ export async function bridgeSearchEntries(options: {
     // Generate query embedding
     let queryEmbedding: number[] | null = null;
     try {
-      const embedder = ctx.agentdb.embedder;
-      if (embedder) {
-        const emb = await embedder.embed(queryStr);
-        queryEmbedding = Array.from(emb);
+      const embResult = await generateReasoningBankEmbedding(queryStr, 'query');
+      if (embResult) {
+        queryEmbedding = embResult.embedding;
+      } else {
+        const embedder = ctx.agentdb.embedder;
+        if (embedder) {
+          const emb = await embedder.embed(queryStr);
+          queryEmbedding = Array.from(emb);
+        }
       }
     } catch {
       // Fall back to keyword search
@@ -816,7 +898,13 @@ export async function bridgeDeleteEntry(options: {
 export async function bridgeGenerateEmbedding(
   text: string,
   dbPath?: string,
+  inputType: 'document' | 'query' = 'document',
 ): Promise<{ embedding: number[]; dimensions: number; model: string } | null> {
+  const reasoningBankResult = await generateReasoningBankEmbedding(text, inputType);
+  if (reasoningBankResult) {
+    return reasoningBankResult;
+  }
+
   const registry = await getRegistry(dbPath);
   if (!registry) return null;
 
@@ -851,6 +939,17 @@ export async function bridgeLoadEmbeddingModel(
   loadTime?: number;
 } | null> {
   const startTime = Date.now();
+  const reasoningBankModules = await getReasoningBankModules();
+  if (reasoningBankModules?.embeddings?.computeEmbedding) {
+    const { dimensions, model } = getReasoningBankEmbeddingSettings(reasoningBankModules);
+    return {
+      success: true,
+      dimensions,
+      modelName: model,
+      loadTime: Date.now() - startTime,
+    };
+  }
+
   const registry = await getRegistry(dbPath);
   if (!registry) return null;
 
@@ -910,7 +1009,7 @@ export async function bridgeGetHNSWStatus(
       available: true,
       initialized: true,
       entryCount,
-      dimensions: 384,
+      dimensions: await getConfiguredMemoryDimensions(),
     };
   } catch {
     return null;

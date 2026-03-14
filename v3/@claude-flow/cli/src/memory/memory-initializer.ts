@@ -352,7 +352,7 @@ export async function getHNSWIndex(options?: {
   dimensions?: number;
   forceRebuild?: boolean;
 }): Promise<HNSWIndex | null> {
-  const dimensions = options?.dimensions ?? 384;
+  const dimensions = options?.dimensions ?? await getDefaultEmbeddingDimensions();
 
   // Return existing index if already initialized
   if (hnswIndex?.initialized && !options?.forceRebuild) {
@@ -924,6 +924,33 @@ INSERT OR IGNORE INTO vector_indexes (id, name, dimensions) VALUES
 `;
 }
 
+function getInitialMetadataWithDimensions(backend: string, defaultDimensions: number): string {
+  return getInitialMetadata(backend).replace(
+    `INSERT OR IGNORE INTO vector_indexes (id, name, dimensions) VALUES
+  ('default', 'default', 768),
+  ('patterns', 'patterns', 768);`,
+    `INSERT OR IGNORE INTO vector_indexes (id, name, dimensions) VALUES
+  ('default', 'default', ${defaultDimensions}),
+  ('patterns', 'patterns', ${defaultDimensions});`,
+  );
+}
+
+async function getDefaultEmbeddingDimensions(): Promise<number> {
+  const bridge = await getBridge();
+  if (bridge?.bridgeLoadEmbeddingModel) {
+    try {
+      const bridgeResult = await bridge.bridgeLoadEmbeddingModel();
+      if (bridgeResult?.success && bridgeResult.dimensions) {
+        return bridgeResult.dimensions;
+      }
+    } catch {
+      // Fall through to local state/defaults
+    }
+  }
+
+  return embeddingModelState?.dimensions ?? 384;
+}
+
 /**
  * Memory initialization result
  */
@@ -1220,9 +1247,11 @@ export async function initializeMemoryDatabase(options: {
     if (usedSqlJs && db) {
       // Execute schema
       db.run(MEMORY_SCHEMA_V3);
+      const defaultDimensions = await getDefaultEmbeddingDimensions();
+      const initialMetadata = getInitialMetadataWithDimensions(backend, defaultDimensions);
 
       // Insert initial metadata
-      db.run(getInitialMetadata(backend));
+      db.run(initialMetadata);
 
       // Save to file
       const data = db.export();
@@ -1234,7 +1263,7 @@ export async function initializeMemoryDatabase(options: {
 
       // Also create schema file for reference
       const schemaPath = path.join(dbDir, 'schema.sql');
-      fs.writeFileSync(schemaPath, MEMORY_SCHEMA_V3 + '\n' + getInitialMetadata(backend));
+      fs.writeFileSync(schemaPath, MEMORY_SCHEMA_V3 + '\n' + initialMetadata);
 
       // ADR-053: Activate ControllerRegistry so controllers (ReasoningBank,
       // SkillLibrary, ExplainableRecall, etc.) are instantiated during init
@@ -1283,7 +1312,11 @@ export async function initializeMemoryDatabase(options: {
     } else {
       // Fall back to schema file approach
       const schemaPath = path.join(dbDir, 'schema.sql');
-      fs.writeFileSync(schemaPath, MEMORY_SCHEMA_V3 + '\n' + getInitialMetadata(backend));
+      const defaultDimensions = await getDefaultEmbeddingDimensions();
+      fs.writeFileSync(
+        schemaPath,
+        MEMORY_SCHEMA_V3 + '\n' + getInitialMetadataWithDimensions(backend, defaultDimensions),
+      );
 
       // Create minimal valid SQLite file
       const sqliteHeader = Buffer.alloc(4096, 0);
@@ -1626,7 +1659,10 @@ export async function loadEmbeddingModel(options?: {
  * Generate real embedding for text
  * Uses ONNX model if available, falls back to deterministic hash
  */
-export async function generateEmbedding(text: string): Promise<{
+export async function generateEmbedding(
+  text: string,
+  inputType: 'document' | 'query' = 'document',
+): Promise<{
   embedding: number[];
   dimensions: number;
   model: string;
@@ -1634,7 +1670,7 @@ export async function generateEmbedding(text: string): Promise<{
   // ADR-053: Try AgentDB v3 bridge first
   const bridge = await getBridge();
   if (bridge) {
-    const bridgeResult = await bridge.bridgeGenerateEmbedding(text);
+    const bridgeResult = await bridge.bridgeGenerateEmbedding(text, undefined, inputType);
     if (bridgeResult) return bridgeResult;
   }
 
@@ -2146,7 +2182,7 @@ export async function searchEntries(options: {
     await ensureSchemaColumns(dbPath);
 
     // Generate query embedding
-    const queryEmb = await generateEmbedding(query);
+    const queryEmb = await generateEmbedding(query, 'query');
     const queryEmbedding = queryEmb.embedding;
 
     // Try HNSW search first (150x faster)

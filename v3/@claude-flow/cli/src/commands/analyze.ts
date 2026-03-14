@@ -21,6 +21,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { writeFile } from 'fs/promises';
 import { resolve } from 'path';
+import { DEFAULT_REPO_SCAN_EXCLUDE_DIRS, shouldExcludeRepoDir } from '../utils/repo-scan-excludes.js';
 
 // Dynamic import for AST analyzer
 async function getASTAnalyzer() {
@@ -1165,7 +1166,6 @@ const importsCommand: Command = {
 async function scanSourceFiles(dir: string, maxDepth: number = 10): Promise<string[]> {
   const files: string[] = [];
   const extensions = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'];
-  const excludeDirs = ['node_modules', 'dist', 'build', '.git', 'coverage', '__pycache__'];
 
   async function scan(currentDir: string, depth: number): Promise<void> {
     if (depth > maxDepth) return;
@@ -1177,7 +1177,7 @@ async function scanSourceFiles(dir: string, maxDepth: number = 10): Promise<stri
         const fullPath = path.join(currentDir, entry.name);
 
         if (entry.isDirectory()) {
-          if (!excludeDirs.includes(entry.name)) {
+          if (!shouldExcludeRepoDir(entry.name)) {
             await scan(fullPath, depth + 1);
           }
         } else if (entry.isFile()) {
@@ -1687,7 +1687,7 @@ const dependenciesCommand: Command = {
       short: 'e',
       description: 'Patterns to exclude (comma-separated)',
       type: 'string',
-      default: 'node_modules,dist,build,.git',
+      default: DEFAULT_REPO_SCAN_EXCLUDE_DIRS.join(','),
     },
     {
       name: 'depth',
@@ -1707,7 +1707,7 @@ const dependenciesCommand: Command = {
     const outputFile = ctx.flags.output as string | undefined;
     const format = (ctx.flags.format as string) || 'text';
     const include = ((ctx.flags.include as string) || '.ts,.tsx,.js,.jsx,.mjs,.cjs').split(',');
-    const exclude = ((ctx.flags.exclude as string) || 'node_modules,dist,build,.git').split(',');
+    const exclude = ((ctx.flags.exclude as string) || DEFAULT_REPO_SCAN_EXCLUDE_DIRS.join(',')).split(',');
     const maxDepth = (ctx.flags.depth as number) || 10;
 
     output.printInfo(`Building dependency graph for: ${output.highlight(targetDir)}`);

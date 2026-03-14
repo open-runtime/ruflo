@@ -7,6 +7,7 @@
 
 import type { Command, CommandContext, CommandResult } from '../types.js';
 import { output } from '../output.js';
+import { shouldExcludeRepoDir } from '../utils/repo-scan-excludes.js';
 
 // Scan subcommand
 const scanCommand: Command = {
@@ -98,7 +99,7 @@ const scanCommand: Command = {
           try {
             const entries = fs.readdirSync(dir, { withFileTypes: true });
             for (const entry of entries) {
-              if (entry.name.startsWith('.') || entry.name === 'node_modules' || entry.name === 'dist') continue;
+              if (entry.name.startsWith('.') || shouldExcludeRepoDir(entry.name)) continue;
               const fullPath = path.join(dir, entry.name);
               if (entry.isDirectory()) {
                 scanDir(fullPath, depthLimit - 1);
@@ -146,7 +147,7 @@ const scanCommand: Command = {
           try {
             const entries = fs.readdirSync(dir, { withFileTypes: true });
             for (const entry of entries) {
-              if (entry.name.startsWith('.') || entry.name === 'node_modules' || entry.name === 'dist') continue;
+              if (entry.name.startsWith('.') || shouldExcludeRepoDir(entry.name)) continue;
               const fullPath = path.join(dir, entry.name);
               if (entry.isDirectory()) {
                 scanCodeDir(fullPath, depthLimit - 1);

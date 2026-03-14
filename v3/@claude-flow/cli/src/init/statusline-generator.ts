@@ -11,6 +11,7 @@
  */
 
 import type { InitOptions } from './types.js';
+import { DEFAULT_REPO_SCAN_EXCLUDE_DIRS } from '../utils/repo-scan-excludes.js';
 
 /**
  * Generate optimized statusline script
@@ -24,6 +25,7 @@ import type { InitOptions } from './types.js';
  */
 export function generateStatuslineScript(options: InitOptions): string {
   const maxAgents = options.runtime.maxAgents;
+  const excludedDirs = JSON.stringify(DEFAULT_REPO_SCAN_EXCLUDE_DIRS);
 
   return `#!/usr/bin/env node
 /**
@@ -49,6 +51,7 @@ const os = require('os');
 // Configuration
 const CONFIG = {
   maxAgents: ${maxAgents},
+  excludedDirs: ${excludedDirs},
 };
 
 const CWD = process.cwd();
@@ -489,7 +492,7 @@ function getTestStats() {
       if (!fs.existsSync(dir)) return;
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
+        if (entry.isDirectory() && !CONFIG.excludedDirs.includes(entry.name) && !entry.name.startsWith('.')) {
           countTestFiles(path.join(dir, entry.name), depth + 1);
         } else if (entry.isFile()) {
           const n = entry.name;

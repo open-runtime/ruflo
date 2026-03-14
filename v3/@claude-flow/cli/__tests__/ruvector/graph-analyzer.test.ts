@@ -122,6 +122,27 @@ export const main = 'main';
       const hasNodeModules = Array.from(graph.nodes.values()).some(n => n.path.includes('node_modules'));
       expect(hasNodeModules).toBe(false);
     });
+
+    it('should exclude Dart and Rust build directories by default', async () => {
+      await mkdir(join(testDir, '.dart_tool', 'generated'), { recursive: true });
+      await mkdir(join(testDir, 'target', 'debug'), { recursive: true });
+      await writeFile(join(testDir, '.dart_tool', 'generated', 'tool.js'), `
+export const generated = 'dart-tool';
+`);
+      await writeFile(join(testDir, 'target', 'debug', 'lib.ts'), `
+export const compiled = 'rust-target';
+`);
+      await writeFile(join(testDir, 'index.ts'), `
+export const main = 'main';
+`);
+
+      const graph = await buildDependencyGraph(testDir);
+      const hasDartTool = Array.from(graph.nodes.values()).some(n => n.path.includes('.dart_tool'));
+      const hasTarget = Array.from(graph.nodes.values()).some(n => n.path.includes('target'));
+
+      expect(hasDartTool).toBe(false);
+      expect(hasTarget).toBe(false);
+    });
   });
 
   describe('detectCircularDependencies', () => {

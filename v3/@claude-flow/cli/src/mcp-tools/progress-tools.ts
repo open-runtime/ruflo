@@ -10,6 +10,7 @@ import type { MCPTool } from './types.js';
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, statSync } from 'fs';
 import { join, basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { shouldExcludeRepoDir } from '../utils/repo-scan-excludes.js';
 
 // Get project root - handles both src and dist paths
 const __filename = fileURLToPath(import.meta.url);
@@ -67,7 +68,7 @@ function countFilesAndLines(dir: string, ext = '.ts'): { files: number; lines: n
       const entries = readdirSync(currentDir, { withFileTypes: true });
       for (const entry of entries) {
         const fullPath = join(currentDir, entry.name);
-        if (entry.isDirectory() && !entry.name.includes('node_modules') && !entry.name.startsWith('.')) {
+        if (entry.isDirectory() && !entry.name.startsWith('.') && !shouldExcludeRepoDir(entry.name)) {
           walk(fullPath);
         } else if (entry.isFile() && entry.name.endsWith(ext)) {
           files++;
@@ -120,7 +121,7 @@ async function calculateProgress(): Promise<V3ProgressMetrics> {
   if (existsSync(modulesDir)) {
     const entries = readdirSync(modulesDir, { withFileTypes: true });
     for (const entry of entries) {
-      if (entry.isDirectory() && !entry.name.startsWith('.')) {
+      if (entry.isDirectory() && !entry.name.startsWith('.') && !shouldExcludeRepoDir(entry.name)) {
         const moduleDir = join(modulesDir, entry.name);
         const { files, lines } = countFilesAndLines(moduleDir);
         const progress = calculateModuleProgress(moduleDir);

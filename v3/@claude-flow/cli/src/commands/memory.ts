@@ -7,6 +7,7 @@ import type { Command, CommandContext, CommandResult } from '../types.js';
 import { output } from '../output.js';
 import { select, confirm, input } from '../prompt.js';
 import { callMCPTool, MCPClientError } from '../mcp-client.js';
+import { shutdownBridge } from '../memory/memory-bridge.js';
 
 // Memory backends
 const BACKENDS = [
@@ -1454,6 +1455,8 @@ const initMemoryCommand: Command = {
       spinner.fail('Initialization failed');
       output.printError(`Failed to initialize memory: ${error instanceof Error ? error.message : String(error)}`);
       return { success: false, exitCode: 1 };
+    } finally {
+      await shutdownBridge();
     }
   }
 };

@@ -653,6 +653,117 @@ describe('Memory Commands', () => {
       expect(result.data).toHaveProperty('backend', 'agentdb');
     });
   });
+
+  describe('memory init', () => {
+    afterEach(() => {
+      vi.doUnmock('../src/memory/memory-initializer.js');
+      vi.doUnmock('../src/memory/memory-bridge.js');
+      vi.resetModules();
+    });
+
+    it('shuts down the memory bridge after successful initialization', async () => {
+      vi.resetModules();
+
+      const initializeMemoryDatabase = vi.fn(async () => ({
+        success: true,
+        backend: 'hybrid',
+        dbPath: '/tmp/test-memory.db',
+        schemaVersion: '3.0.0',
+        tablesCreated: [],
+        indexesCreated: [],
+        features: {
+          vectorEmbeddings: true,
+          patternLearning: true,
+          temporalDecay: true,
+          hnswIndexing: true,
+          migrationTracking: true,
+        },
+      }));
+      const loadEmbeddingModel = vi.fn(async () => ({
+        success: true,
+        dimensions: 2048,
+        modelName: 'voyage-code-3',
+        loadTime: 1,
+      }));
+      const verifyMemoryInit = vi.fn(async () => ({
+        success: true,
+        tests: [],
+        summary: { passed: 1, failed: 0, total: 1 },
+      }));
+      const shutdownBridge = vi.fn(async () => {});
+
+      vi.doMock('../src/memory/memory-initializer.js', () => ({
+        initializeMemoryDatabase,
+        loadEmbeddingModel,
+        verifyMemoryInit,
+      }));
+      vi.doMock('../src/memory/memory-bridge.js', () => ({
+        shutdownBridge,
+      }));
+
+      const { memoryCommand: freshMemoryCommand } = await import('../src/commands/memory.js');
+      const initCmd = freshMemoryCommand.subcommands?.find(c => c.name === 'init');
+      expect(initCmd).toBeDefined();
+
+      const result = await initCmd!.action!({
+        args: [],
+        flags: { force: true, verify: false, _: [] },
+        cwd: '/test',
+        interactive: false,
+      });
+
+      expect(result.success).toBe(true);
+      expect(shutdownBridge).toHaveBeenCalledTimes(1);
+    });
+
+    it('shuts down the memory bridge when initialization fails', async () => {
+      vi.resetModules();
+
+      const initializeMemoryDatabase = vi.fn(async () => ({
+        success: false,
+        backend: 'hybrid',
+        dbPath: '/tmp/test-memory.db',
+        schemaVersion: '3.0.0',
+        tablesCreated: [],
+        indexesCreated: [],
+        features: {
+          vectorEmbeddings: false,
+          patternLearning: false,
+          temporalDecay: false,
+          hnswIndexing: false,
+          migrationTracking: false,
+        },
+        error: 'boom',
+      }));
+      const loadEmbeddingModel = vi.fn();
+      const verifyMemoryInit = vi.fn();
+      const shutdownBridge = vi.fn(async () => {});
+
+      vi.doMock('../src/memory/memory-initializer.js', () => ({
+        initializeMemoryDatabase,
+        loadEmbeddingModel,
+        verifyMemoryInit,
+      }));
+      vi.doMock('../src/memory/memory-bridge.js', () => ({
+        shutdownBridge,
+      }));
+
+      const { memoryCommand: freshMemoryCommand } = await import('../src/commands/memory.js');
+      const initCmd = freshMemoryCommand.subcommands?.find(c => c.name === 'init');
+      expect(initCmd).toBeDefined();
+
+      const result = await initCmd!.action!({
+        args: [],
+        flags: { force: true, verify: false, _: [] },
+        cwd: '/test',
+        interactive: false,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.exitCode).toBe(1);
+      expect(shutdownBridge).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 describe('Config Commands', () => {

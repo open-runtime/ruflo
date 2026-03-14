@@ -24,6 +24,7 @@ import { EventEmitter } from 'events';
 import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync } from 'fs';
 import { join, relative } from 'path';
 import type { WorkerType } from './worker-daemon.js';
+import { shouldExcludeRepoDir } from '../utils/repo-scan-excludes.js';
 
 // ============================================
 // Type Definitions
@@ -1006,15 +1007,7 @@ export class HeadlessWorkerExecutor extends EventEmitter {
 
         for (const entry of entries) {
           // Skip common non-code directories
-          if (
-            entry.name === 'node_modules' ||
-            entry.name === '.git' ||
-            entry.name === 'dist' ||
-            entry.name === 'build' ||
-            entry.name === 'coverage' ||
-            entry.name === '.next' ||
-            entry.name === '.cache'
-          ) {
+          if (shouldExcludeRepoDir(entry.name)) {
             continue;
           }
 
